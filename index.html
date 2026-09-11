@@ -1237,6 +1237,8 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .team-pet-item:hover{border-color:var(--gold);background:var(--card2)}
 .team-pet-item:active{cursor:grabbing}.team-pet-item.in-team{opacity:.55}
 .team-pet-item.selected{border-color:var(--gold-lt);box-shadow:0 0 0 2px var(--gold-lt),inset 0 0 12px rgba(184,148,58,.2);opacity:1}
+.team-pet-item.drag-ghost{opacity:.4;border-color:var(--gold-lt);box-shadow:0 0 0 2px var(--gold-lt)}
+.team-pet-list-scroll.list-drag-over{background:rgba(184,148,58,.08);border:2px dashed var(--gold-lt)}
 .team-pet-item svg{width:36px;height:36px;flex-shrink:0}
 .team-pet-item-info{flex:1}
 .team-pet-item-name{font-size:13px;font-weight:700;margin-bottom:2px}
@@ -4535,6 +4537,7 @@ const Game={
   const eq=this.eqOf(id);const activeSets=artifactSetsOf(eq);
   const expNeed=st.level*200;
   const isMut=pet.isMutant||(st&&st.mutated);
+  const baseId=isMut?(pet.baseId||id.slice(0,-2)):id;
   const mEffect=isMut?(' mutant-effect '+getMutationEffect(pet.baseId||id)):'';
   const mName=isMut?getMutantName(pet.baseId||id):'';
   const mFeature=isMut?getMutantFeature(pet.baseId||id):'';
@@ -4556,9 +4559,9 @@ const Game={
     '<div class="stat-row"><span class="stat-name">性格</span><span class="stat-value">'+st.nature+'（'+NATURES[st.nature]+'）</span></div>'+
     '<div class="stat-row"><span class="stat-name">进化路线</span><span class="stat-value" style="color:var(--txt3);font-size:11px">'+(EVOLVE[id]?esc(pet.name)+' → '+esc(PETS[EVOLVE[id].to].name):esc(pet.name)+(st.stars>=5?' > 已达5星究极形态':' > 5星觉醒形态'))+'</span></div>'+
     '<div class="stat-row"><span class="stat-name">获取途径</span><span class="stat-value" style="font-size:11px">'+this.sourceText(id)+'</span></div>'+
-    '<div class="grow-row"><div class="grow-info">升到 '+(st.stars+1)+' 星需 '+pet.name+'精魄 ×'+(STAR_COST[st.stars+1]||'—')+(st.stars===4?' + 觉醒石×20':'')+'<br>当前碎片：'+(this.player.shards[id]||0)+'</div>'+
+    '<div class="grow-row"><div class="grow-info">升到 '+(st.stars+1)+' 星需 '+pet.name+'精魄 ×'+(STAR_COST[st.stars+1]||'—')+(st.stars===4?' + 觉醒石×20':'')+'<br>当前碎片：'+(this.totalShardsOf(id))+(isMut?'（变异'+(this.player.shards[id]||0)+'+普通'+(this.player.shards[baseId]||0)+'，互通可用）':'')+'</div>'+
     '<button class="btn btn-small btn-primary" onclick="Game.starUp(\''+id+'\')">升星</button></div>'+
-    (st.stars>=5?('<div class="grow-row" style="margin-top:6px;"><div class="grow-info">突破 +'+st.breakthrough+'/10（全属性+'+(st.breakthrough*2)+'%）<br>下一级需 '+pet.name+'精魄 ×'+(10+st.breakthrough*5)+'　当前碎片：'+(this.player.shards[id]||0)+'</div><button class="btn btn-small '+(st.breakthrough>=10?'':'btn-primary')+'" '+(st.breakthrough>=10?'disabled':'onclick="Game.breakthroughPet(\''+id+'\')"')+'>突破'+(st.breakthrough>=10?'已满':'')+'</button></div>'):'')+
+    (st.stars>=5?('<div class="grow-row" style="margin-top:6px;"><div class="grow-info">突破 +'+st.breakthrough+'/10（全属性+'+(st.breakthrough*2)+'%）<br>下一级需 '+pet.name+'精魄 ×'+(10+st.breakthrough*5)+'　当前碎片：'+(this.totalShardsOf(id))+(isMut?'（变异'+(this.player.shards[id]||0)+'+普通'+(this.player.shards[baseId]||0)+'，互通可用）':'')+'</div><button class="btn btn-small '+(st.breakthrough>=10?'':'btn-primary')+'" '+(st.breakthrough>=10?'disabled':'onclick="Game.breakthroughPet(\''+id+'\')"')+'>突破'+(st.breakthrough>=10?'已满':'')+'</button></div>'):'')+
     (st.stars>1?('<div class="grow-row" style="margin-top:6px;"><div class="grow-info">重置回1星，返还80%升星精魄'+(st.stars>=5?'与觉醒石':'')+'（等级保留）</div><button class="btn btn-small" onclick="Game.askResetPet(\''+id+'\')">重置返还</button></div>'):'')+(EVOLVE[id]?this.evolveRowHtml(id,st,pet):'')+'</div>'+
    '<div class="dex-detail-section"><div class="dex-detail-section-title">五维属性雷达</div>'+this.statRadar(calc)+'</div>'+
    '<div class="dex-detail-section"><div class="dex-detail-section-title">七维战斗属性（含养成/法宝）</div>'+
@@ -4628,12 +4631,28 @@ const Game={
   if(this.panelPet){this.renderPetPanel();this.renderDashTeam()}
   else if(this.currentView==='menu')this.renderDashTeam();else this.selectDexPet(id);
  },
+ // 获取宠物总精魄数量（变异与普通精魄互通）
+ totalShardsOf(id){
+  const isMut=id.endsWith('_m');const baseId=isMut?id.slice(0,-2):id;
+  const mutShards=isMut?(this.player.shards[id]||0):0;
+  const baseShards=this.player.shards[baseId]||0;
+  return mutShards+baseShards;
+ },
  starUp(id){
   const st=this.getPetState(id);if(st.stars>=5){this.tip('已达5星上限');return}
-  const need=STAR_COST[st.stars+1];const have=this.player.shards[id]||0;
-  if(have<need){this.tip('精魄不足（需'+need+'）');return}
+  const need=STAR_COST[st.stars+1];
+  // 变异与普通精魄互通：变异宠可使用普通精魄升星（优先消耗变异精魄，不够用普通精魄补充）
+  const isMut=id.endsWith('_m');const baseId=isMut?id.slice(0,-2):id;
+  const mutShards=isMut?(this.player.shards[id]||0):0;
+  const baseShards=this.player.shards[baseId]||0;
+  const totalShards=mutShards+baseShards;
+  if(totalShards<need){this.tip('精魄不足（需'+need+'，当前'+totalShards+(isMut?'（变异'+mutShards+'+普通'+baseShards+'）':'')+'）');return}
   if(st.stars===4&&this.player.stone<20){this.tip('觉醒石不足（需20）');return}
-  this.player.shards[id]-=need;if(st.stars===4)this.player.stone-=20;
+  // 优先消耗变异精魄，不够用普通精魄补充
+  let remain=need;
+  if(isMut&&mutShards>0){const use=Math.min(mutShards,remain);this.player.shards[id]-=use;remain-=use}
+  if(remain>0){this.player.shards[baseId]=(this.player.shards[baseId]||0)-remain}
+  if(st.stars===4)this.player.stone-=20;
   st.stars++;this.taskTick('star');SaveSystem.save();SFX.starup();this.tip(PETS[id].name+' 升至 '+st.stars+' 星');this.refreshPetView(id);
  },
  // 5星后精魄突破（每级全属性+2%，上限10级）
@@ -4642,9 +4661,16 @@ const Game={
   if(st.stars<5){this.tip('需5星后才能突破');return}
   if(st.breakthrough>=10){this.tip('已达突破上限+10');return}
   const cost=10+st.breakthrough*5;
-  const have=this.player.shards[id]||0;
-  if(have<cost){this.tip('精魄不足（需'+cost+'）');return}
-  this.player.shards[id]-=cost;
+  // 变异与普通精魄互通
+  const isMut=id.endsWith('_m');const baseId=isMut?id.slice(0,-2):id;
+  const mutShards=isMut?(this.player.shards[id]||0):0;
+  const baseShards=this.player.shards[baseId]||0;
+  const totalShards=mutShards+baseShards;
+  if(totalShards<cost){this.tip('精魄不足（需'+cost+'，当前'+totalShards+(isMut?'（变异'+mutShards+'+普通'+baseShards+'）':'')+'）');return}
+  // 优先消耗变异精魄，不够用普通精魄补充
+  let remain=cost;
+  if(isMut&&mutShards>0){const use=Math.min(mutShards,remain);this.player.shards[id]-=use;remain-=use}
+  if(remain>0){this.player.shards[baseId]=(this.player.shards[baseId]||0)-remain}
   st.breakthrough++;
   SaveSystem.save();SFX.breakthrough();
   this.tip(PETS[id].name+' 突破 +'+st.breakthrough+'（全属性+'+(st.breakthrough*2)+'%）');
@@ -5690,7 +5716,7 @@ const Secret={
  }
 };
 const TeamDrag={
- start(e,petId){Game.dragPet=petId;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',petId);e.target.classList.add('drag-ghost')},
+ start(e,petId){Game.dragPet=petId;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',petId);e.currentTarget.classList.add('drag-ghost')},
  end(){document.querySelectorAll('.team-slot').forEach(s=>s.classList.remove('drag-over'));document.querySelectorAll('.team-pet-item').forEach(x=>x.classList.remove('drag-ghost'));document.getElementById('team-pet-list')&&document.getElementById('team-pet-list').classList.remove('list-drag-over')},
  over(e){e.preventDefault();e.currentTarget.classList.add('drag-over');e.dataTransfer.dropEffect='move'},
  leave(e){e.currentTarget.classList.remove('drag-over')},
