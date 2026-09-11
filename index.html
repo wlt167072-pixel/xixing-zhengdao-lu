@@ -4324,6 +4324,11 @@ const Game={
   const growthCount=stt.growthCount||0;
   const itemBtn=(itemId,label,count,disabled)=>'<button class="btn btn-xs '+(disabled?'':'btn-primary')+'" style="padding:4px 8px;font-size:11px;" '+(disabled?'disabled':'onclick="Game.useExpItem(\''+id+'\',\''+itemId+'\')"')+'>'+label+'('+(count||0)+')</button>';
   const reforgeBtn=(itemId,label,count,disabled)=>'<button class="btn btn-xs" style="padding:4px 8px;font-size:11px;" '+(disabled?'disabled':'onclick="Game.reforgeQuality(\''+id+'\',\''+(itemId==='reforge_adv'?'advanced':'basic')+'\')"')+'>'+label+'('+(count||0)+')</button>';
+  const isMutPet=pet.isMutant||(stt&&stt.mutated);
+  const basePetId=isMutPet?(pet.baseId||id.slice(0,-2)):id;
+  const totalShards=this.totalShardsOf(id);
+  const needShards=STAR_COST[stt.stars+1]||0;
+  const shardTxt=isMutPet?('当前碎片：'+totalShards+'（变异'+(this.player.shards[id]||0)+'+普通'+(this.player.shards[basePetId]||0)+'，互通可用）'):('当前碎片：'+(this.player.shards[id]||0));
   const grow=
    '<div class="pp-grow-info">经验 '+stt.exp+'/'+expNeed+'（出战自动获得）　资质 <span style="color:'+(stt.quality==='传说'?'#e09830':stt.quality==='完美'?'#b060c0':stt.quality==='卓越'?'#4a90c8':'#8ab870')+'">'+stt.quality+'</span>（全属性+'+QUALITY[stt.quality]+'%）　性格 '+stt.nature+(growthCount?'　成长果 '+growthCount+'/5':'')+'</div>'+
    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;">'+
@@ -4334,7 +4339,7 @@ const Game={
    '<span style="font-size:11px;color:var(--txt2);width:100%;margin-top:4px;">成长道具：</span>'+
    '<button class="btn btn-xs" style="padding:4px 8px;font-size:11px;" '+(growthCount>=5||!items.growth_fruit?'disabled':'onclick="Game.useGrowthFruit(\''+id+'\')"')+'>成长果('+(items.growth_fruit||0)+')'+(growthCount>=5?'已满':'')+'</button>'+
    '</div>'+
-   '<div class="pp-actions"><button class="btn btn-primary" onclick="Game.starUp(\''+id+'\')">升星</button>'+
+   '<div class="pp-actions"><div style="font-size:11px;color:var(--txt2);margin-bottom:6px;width:100%;">升到 '+(stt.stars+1)+' 星需 '+pet.name+'精魄 ×'+needShards+(stt.stars===4?' + 觉醒石×20':'')+'　'+shardTxt+'</div><button class="btn btn-primary" onclick="Game.starUp(\''+id+'\')">升星</button>'+
    (stt.stars>=5?'<button class="btn '+(stt.breakthrough>=10?'':'btn-primary')+'" '+(stt.breakthrough>=10?'disabled':'onclick="Game.breakthroughPet(\''+id+'\')"')+'>突破+'+stt.breakthrough+'</button>':'')+
    (EVOLVE[id]?'<button class="btn" onclick="Game.askEvolve(\''+id+'\')">进化</button>':'')+
    (stt.stars>1?'<button class="btn" onclick="Game.askResetPet(\''+id+'\')">重置返还</button>':'')+
