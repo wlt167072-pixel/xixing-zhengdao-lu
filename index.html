@@ -1557,11 +1557,6 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
         <span class="dash-nav-tx"><b>秘境副本</b><i>无尽试炼 · 养成资源</i></span>
         <span class="dash-nav-go">&gt;</span>
       </button>
-      <button class="dash-nav" onclick="Game.openDaily()">
-        <span class="dash-nav-ic icon-task">任</span>
-        <span class="dash-nav-tx"><b>日常任务</b><i id="dash-daily-sub">活跃度 0/100</i></span>
-        <span class="dash-nav-go">&gt;</span>
-      </button>
       <button class="dash-nav" onclick="Game.showAchievements()">
         <span class="dash-nav-ic icon-achievement">就</span>
         <span class="dash-nav-tx"><b>成就殿堂</b><i id="dash-ach-sub">0/0 已解锁</i></span>
@@ -2183,7 +2178,7 @@ const ACHIEVEMENTS={
  // ===== 战斗类（15个）
  B01:{id:'B01',name:'初战告捷',desc:'通关第1难',icon:'战',type:'battle',target:1,reward:{gold:100,exp:1000},points:10,check:p=>Object.keys(p.clearedStages||{}).length>=1},
  B02:{id:'B02',name:'西行半程',desc:'通关第40难',icon:'战',type:'battle',target:40,reward:{destiny_shard:3},points:30,check:p=>Object.keys(p.clearedStages||{}).length>=40},
- B03:{id:'B03',name:'西行圆满',desc:'通关全部81难',icon:'战',type:'battle',target:81,reward:{destiny_shard:5},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
+ B03:{id:'B03',name:'西行圆满',desc:'通关全部81难',icon:'战',type:'battle',target:81,reward:{destiny_shard:5,stone:50},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
  B04:{id:'B04',name:'百战不殆',desc:'累计战斗胜利100场',icon:'战',type:'battle',target:100,reward:{gold:2000},points:20,check:p=>(p.battleWins||0)>=100},
  B05:{id:'B05',name:'千军辟易',desc:'累计战斗胜利500场',icon:'战',type:'battle',target:500,reward:{gold:10000},points:50,check:p=>(p.battleWins||0)>=500},
  B06:{id:'B06',name:'降妖伏魔',desc:'首次收服妖王',icon:'服',type:'battle',target:1,reward:{destiny_shard:1},points:30,check:p=>(p.capturedCount||0)>=1},
@@ -2194,7 +2189,7 @@ const ACHIEVEMENTS={
  B11:{id:'B11',name:'绝境逢生',desc:'队伍只剩1只御兽时翻盘获胜',icon:'绝',type:'battle',target:1,reward:{gold:2000},points:40,check:p=>(p.comebackWins||0)>=1},
  B12:{id:'B12',name:'以弱胜强',desc:'用全N级御兽通关一个BOSS',icon:'弱',type:'battle',target:1,reward:{gold:3000},points:40,check:p=>(p.weakTeamBossKills||0)>=1},
  B13:{id:'B13',name:'秘境初探',desc:'通关第一个秘境',icon:'秘',type:'battle',target:1,reward:{gold:500,exp:2000},points:10,check:p=>Object.keys(p.clearedSecret||{}).length>=1},
- B14:{id:'B14',name:'秘境行者',desc:'通关全部6个秘境',icon:'秘',type:'battle',target:6,reward:{destiny_shard:3},points:50,check:p=>Object.keys(p.clearedSecret||{}).length>=6},
+ B14:{id:'B14',name:'秘境行者',desc:'通关全部6个秘境',icon:'秘',type:'battle',target:6,reward:{destiny_shard:3,stone:30},points:50,check:p=>Object.keys(p.clearedSecret||{}).length>=6},
  B15:{id:'B15',name:'三十波封神',desc:'任意秘境达到30波',icon:'秘',type:'battle',target:30,reward:{destiny_shard:2},points:40,check:p=>Object.values(p.secretBest||{}).some(w=>w>=30)},
  // ===== 养成类（15个）
  T01:{id:'T01',name:'初窥门径',desc:'一只御兽达到10级',icon:'养',type:'cultivate',target:10,reward:{gold:100,exp:1500},points:10,check:p=>Object.values(p.petState||{}).some(s=>s.level>=10)},
@@ -2203,8 +2198,8 @@ const ACHIEVEMENTS={
  T04:{id:'T04',name:'满级大佬',desc:'一只御兽达到满级60级',icon:'养',type:'cultivate',target:60,reward:{destiny_shard:3},points:50,check:p=>Object.values(p.petState||{}).some(s=>s.level>=60)},
  T05:{id:'T05',name:'升星初体验',desc:'一只御兽升到2星',icon:'星',type:'cultivate',target:2,reward:{gold:100,exp:1000},points:10,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=2)},
  T06:{id:'T06',name:'三星闪耀',desc:'一只御兽升到3星',icon:'星',type:'cultivate',target:3,reward:{gold:500},points:20,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=3)},
- T07:{id:'T07',name:'五星圆满',desc:'一只御兽升到5星',icon:'星',type:'cultivate',target:5,reward:{destiny_shard:5},points:80,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
- T08:{id:'T08',name:'觉醒之力',desc:'一只御兽奥义觉醒（5星）',icon:'觉',type:'cultivate',target:1,reward:{destiny_shard:3},points:40,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
+ T07:{id:'T07',name:'五星圆满',desc:'一只御兽升到5星',icon:'星',type:'cultivate',target:5,reward:{destiny_shard:5,stone:20},points:80,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
+ T08:{id:'T08',name:'觉醒之力',desc:'一只御兽奥义觉醒（5星）',icon:'觉',type:'cultivate',target:1,reward:{destiny_shard:3,stone:10},points:40,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
  T09:{id:'T09',name:'羁绊初结',desc:'激活第1组羁绊',icon:'绊',type:'cultivate',target:1,reward:{gold:100,exp:800},points:10,check:p=>{const team=[...(p.team?.front||[]),...(p.team?.back||[])].filter(Boolean);return calcBondsFull(team).length>=1}},
  T10:{id:'T10',name:'羁绊达人',desc:'激活10组羁绊',icon:'绊',type:'cultivate',target:10,reward:{gold:1000},points:30,check:p=>{const team=[...(p.team?.front||[]),...(p.team?.back||[])].filter(Boolean);return calcBondsFull(team).length>=10}},
  T11:{id:'T11',name:'法宝初装',desc:'装备第一件法宝',icon:'法',type:'cultivate',target:1,reward:{gold:100,exp:800},points:10,check:p=>Object.values(p.equipped||{}).some(e=>e&&(typeof e==='string'||Object.values(e).some(Boolean)))},
@@ -2220,9 +2215,9 @@ const ACHIEVEMENTS={
  E05:{id:'E05',name:'三十波封神',desc:'秘境达到30波',icon:'探',type:'explore',target:30,reward:{destiny_shard:2},points:40,check:p=>Object.values(p.secretBest||{}).some(w=>w>=30)},
  E06:{id:'E06',name:'西行启程',desc:'通关10难',icon:'探',type:'explore',target:10,reward:{gold:500,exp:3000},points:20,check:p=>Object.keys(p.clearedStages||{}).length>=10},
  E07:{id:'E07',name:'降妖除魔',desc:'通关20难',icon:'探',type:'explore',target:20,reward:{gold:1000},points:30,check:p=>Object.keys(p.clearedStages||{}).length>=20},
- E08:{id:'E08',name:'大道将成',desc:'通关60难',icon:'探',type:'explore',target:60,reward:{gold:5000},points:50,check:p=>Object.keys(p.clearedStages||{}).length>=60},
+ E08:{id:'E08',name:'大道将成',desc:'通关60难',icon:'探',type:'explore',target:60,reward:{gold:5000,stone:30},points:50,check:p=>Object.keys(p.clearedStages||{}).length>=60},
  E09:{id:'E09',name:'解谜高手',desc:'解开所有五行机关谜题',icon:'谜',type:'explore',target:10,reward:{gold:1000},points:30,check:p=>(p.puzzlesSolved||0)>=10},
- E10:{id:'E10',name:'西天取经',desc:'到达灵山（通关第81难）',icon:'经',type:'explore',target:81,reward:{destiny_shard:5},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
+ E10:{id:'E10',name:'西天取经',desc:'到达灵山（通关第81难）',icon:'经',type:'explore',target:81,reward:{destiny_shard:5,stone:50},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
  // ===== 特殊类（10个）
  X01:{id:'X01',name:'初次合成',desc:'第一次合成御兽',icon:'合',type:'special',target:1,reward:{gold:100,exp:1000},points:10,check:p=>(p.totalFusions||0)>=1},
  X02:{id:'X02',name:'合成达人',desc:'合成100次',icon:'合',type:'special',target:100,reward:{destiny_shard:3},points:30,check:p=>(p.totalFusions||0)>=100},
@@ -5674,7 +5669,8 @@ const Secret={
   if(this.wave>=3&&Math.random()<0.3){Game.giveItem('reforge_basic',1);this.rewards.items.reforge_basic=(this.rewards.items.reforge_basic||0)+1;drops.push('洗髓丹x1')}
   if(this.wave>=5&&Math.random()<0.25){Game.giveItem('art_frag',2);this.rewards.items.art_frag=(this.rewards.items.art_frag||0)+2;drops.push('法宝碎片x2')}
   if(this.wave>=8&&Math.random()<0.2){Game.giveItem('reforge_adv',1);this.rewards.items.reforge_adv=(this.rewards.items.reforge_adv||0)+1;drops.push('洗髓仙丹x1')}
-  if(this.wave>=10&&Math.random()<0.15){Game.player.stone=(Game.player.stone||0)+1;this.rewards.stone+=1;drops.push('觉醒石x1')}
+  if(this.wave>=5&&Math.random()<0.25){Game.player.stone=(Game.player.stone||0)+1;this.rewards.stone+=1;drops.push('觉醒石x1')}
+  if(this.wave>=10&&Math.random()<0.35){Game.player.stone=(Game.player.stone||0)+1;this.rewards.stone+=1;drops.push('觉醒石x1')}
   if(this.wave>=12&&Math.random()<0.12){Game.giveItem('stamina_potion',1);this.rewards.items.stamina_potion=(this.rewards.items.stamina_potion||0)+1;drops.push('体力药水x1')}
   if(this.wave>=15&&Math.random()<0.1){Game.giveItem('exp_l',1);this.rewards.items.exp_l=(this.rewards.items.exp_l||0)+1;drops.push('大经验丹x1')}
   if(this.wave>=20&&Math.random()<0.08){Game.giveItem('growth_fruit',1);this.rewards.items.growth_fruit=(this.rewards.items.growth_fruit||0)+1;drops.push('成长果x1')}
@@ -5686,7 +5682,7 @@ const Secret={
    const drop=bossDrops[Math.floor(Math.random()*bossDrops.length)];
    Game.giveItem(drop,2);this.rewards.items[drop]=(this.rewards.items[drop]||0)+2;
    drops.push(ITEMS[drop].name+'x2(妖王掉落)');
-   if(this.wave>=10){Game.player.stone=(Game.player.stone||0)+2;this.rewards.stone+=2;drops.push('觉醒石x2(妖王掉落)')}
+   if(this.wave>=5){Game.player.stone=(Game.player.stone||0)+3;this.rewards.stone+=3;drops.push('觉醒石x3(妖王掉落)')}
   }
   if(this.wave===5&&!Game.player.clearedSecret[sr.id]){
    Game.player.clearedSecret[sr.id]=true;
@@ -5966,16 +5962,19 @@ const Explore={
   const diffMap={'教学':0,'普通':1,'精英':2,'史诗':3,'传说':4};const diffTier=diffMap[s.diff]!==undefined?diffMap[s.diff]:1;
   const dropItems=[];
   const dropTable=[
-    [{item:'exp_s',chance:1.0,count:[1,2]},{item:'reforge_basic',chance:0.3,count:[1,1]},{item:'art_frag',chance:0.2,count:[1,2]}],
-    [{item:'exp_s',chance:1.0,count:[1,3]},{item:'reforge_basic',chance:0.5,count:[1,1]},{item:'art_frag',chance:0.4,count:[1,3]},{item:'growth_fruit',chance:0.1,count:[1,1]}],
-    [{item:'exp_m',chance:0.8,count:[1,2]},{item:'exp_s',chance:1.0,count:[2,4]},{item:'reforge_basic',chance:0.6,count:[1,2]},{item:'reforge_adv',chance:0.2,count:[1,1]},{item:'art_frag',chance:0.6,count:[2,4]},{item:'growth_fruit',chance:0.15,count:[1,1]},{stone:1,chance:0.3,count:[1,2]}],
-    [{item:'exp_m',chance:1.0,count:[1,3]},{item:'exp_l',chance:0.3,count:[1,1]},{item:'reforge_basic',chance:0.5,count:[1,2]},{item:'reforge_adv',chance:0.4,count:[1,2]},{item:'art_frag',chance:0.8,count:[3,6]},{item:'growth_fruit',chance:0.2,count:[1,2]},{item:'stamina_potion',chance:0.15,count:[1,1]},{stone:1,chance:0.5,count:[2,4]}],
-    [{item:'exp_m',chance:1.0,count:[2,4]},{item:'exp_l',chance:0.6,count:[1,2]},{item:'reforge_adv',chance:0.7,count:[1,3]},{item:'art_frag',chance:1.0,count:[4,8]},{item:'growth_fruit',chance:0.3,count:[1,2]},{item:'stamina_potion',chance:0.3,count:[1,2]},{stone:1,chance:0.7,count:[3,6]}]
+    [{item:'exp_s',chance:1.0,count:[1,2]},{item:'reforge_basic',chance:0.3,count:[1,1]},{item:'art_frag',chance:0.2,count:[1,2]},{stone:1,chance:0.15,count:[1,1]}],
+    [{item:'exp_s',chance:1.0,count:[1,3]},{item:'reforge_basic',chance:0.5,count:[1,1]},{item:'art_frag',chance:0.4,count:[1,3]},{item:'growth_fruit',chance:0.1,count:[1,1]},{stone:1,chance:0.25,count:[1,2]}],
+    [{item:'exp_m',chance:0.8,count:[1,2]},{item:'exp_s',chance:1.0,count:[2,4]},{item:'reforge_basic',chance:0.6,count:[1,2]},{item:'reforge_adv',chance:0.2,count:[1,1]},{item:'art_frag',chance:0.6,count:[2,4]},{item:'growth_fruit',chance:0.15,count:[1,1]},{stone:1,chance:0.4,count:[1,3]}],
+    [{item:'exp_m',chance:1.0,count:[1,3]},{item:'exp_l',chance:0.3,count:[1,1]},{item:'reforge_basic',chance:0.5,count:[1,2]},{item:'reforge_adv',chance:0.4,count:[1,2]},{item:'art_frag',chance:0.8,count:[3,6]},{item:'growth_fruit',chance:0.2,count:[1,2]},{item:'stamina_potion',chance:0.15,count:[1,1]},{stone:1,chance:0.6,count:[2,5]}],
+    [{item:'exp_m',chance:1.0,count:[2,4]},{item:'exp_l',chance:0.6,count:[1,2]},{item:'reforge_adv',chance:0.7,count:[1,3]},{item:'art_frag',chance:1.0,count:[4,8]},{item:'growth_fruit',chance:0.3,count:[1,2]},{item:'stamina_potion',chance:0.3,count:[1,2]},{stone:1,chance:0.8,count:[3,8]}]
   ][diffTier];
   let stoneDrop=0;
   dropTable.forEach(d=>{if(Math.random()<d.chance){const cnt=rnd(d.count[0],d.count[1]);
     if(d.item){Game.giveItem(d.item,cnt);dropItems.push(ITEMS[d.item].name+'×'+cnt)}
     else if(d.stone){Game.player.stone=(Game.player.stone||0)+cnt;stoneDrop+=cnt}}});
+  // BOSS关额外掉落觉醒石
+  const isBossStage=s.nodes.some(x=>x.type==='boss');
+  if(isBossStage){const bossStone=rnd(2,5);Game.player.stone=(Game.player.stone||0)+bossStone;stoneDrop+=bossStone;dropItems.push('妖王觉醒石×'+bossStone)}
   if(stoneDrop)dropItems.push('觉醒石×'+stoneDrop);
   const itemTxt=dropItems.length?'\n掉落道具：'+dropItems.join('、'):'';
   SaveSystem.save();
