@@ -4323,7 +4323,7 @@ const Game={
   const items=this.player.items||{};
   const growthCount=stt.growthCount||0;
   const itemBtn=(itemId,label,count,disabled)=>'<button class="btn btn-xs '+(disabled?'':'btn-primary')+'" style="padding:4px 8px;font-size:11px;" '+(disabled?'disabled':'onclick="Game.useExpItem(\''+id+'\',\''+itemId+'\')"')+'>'+label+'('+(count||0)+')</button>';
-  const reforgeBtn=(itemId,label,count,disabled)=>'<button class="btn btn-xs" style="padding:4px 8px;font-size:11px;" '+(disabled?'disabled':'onclick="Game.reforgeQuality(\''+id+'\',\''+(itemId==='reforge_adv'?'advanced':'basic')+'\')"')+'>'+label+'('+(count||0)+')</button>';
+  const reforgeBtn=(itemId,label,count,disabled)=>'<button class="btn btn-xs" style="padding:4px 8px;font-size:11px;" '+(disabled?'disabled':'onclick="Game.reforgeQuality(\''+id+'\',\''+(itemId==='reforge_adv'?'advanced':'basic')+'\')"')+'>'+label+'('+(count||0)+')'+(stt.quality==='传说'?' 已锁定':'')+'</button>';
   const isMutPet=pet.isMutant||(stt&&stt.mutated);
   const basePetId=isMutPet?(pet.baseId||id.slice(0,-2)):id;
   const totalShards=this.totalShardsOf(id);
@@ -4710,14 +4710,17 @@ const Game={
  },
  reforgeQuality(id,tier){
   const itemId=tier==='advanced'?'reforge_adv':'reforge_basic';
+  const st=this.getPetState(id);
+  // 资质达到传说自动锁定，不能再洗炼
+  if(st.quality==='传说'){this.tip(PETS[id].name+' 资质已达最高「传说」，已锁定，无法继续洗炼');SFX.click();return}
   if(!this.hasItem(itemId)){this.tip('洗髓丹不足');return}
-  const st=this.getPetState(id);const oldQ=st.quality;
+  const oldQ=st.quality;
   const weights=REFORGE_WEIGHT[tier];const total=weights.reduce((a,b)=>a+b,0);
   let r=Math.random()*total,newQ='普通';
   for(let i=0;i<QUALITY_ORDER.length;i++){r-=weights[i];if(r<=0){newQ=QUALITY_ORDER[i];break}}
   this.consumeItem(itemId);st.quality=newQ;SaveSystem.save();SFX.item();
   const better=QUALITY[newQ]>QUALITY[oldQ];
-  this.tip(PETS[id].name+' 资质：'+oldQ+' → '+newQ+(better?'（提升！）':QUALITY[newQ]===QUALITY[oldQ]?'（不变）':'（下降）'));this.refreshPetView(id);
+  this.tip(PETS[id].name+' 资质：'+oldQ+' → '+newQ+(better?'（提升！）':QUALITY[newQ]===QUALITY[oldQ]?'（不变）':'（下降）')+(newQ==='传说'?'（已达最高，自动锁定）':''));this.refreshPetView(id);
  },
  useGrowthFruit(id){
   if(!this.hasItem('growth_fruit')){this.tip('成长果不足');return}
