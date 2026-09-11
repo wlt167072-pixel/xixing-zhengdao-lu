@@ -5409,8 +5409,9 @@ const Game={
     const pet=item.pet,st=item.state;
     const isMut=pet.isMutant||st.mutated;
     const inTeam=[...(p.team?.front||[]),...(p.team?.back||[])].includes(pet.id);
-    html+='<div class="bag-item rar'+pet.rarity+(selected?' selected':'')+(isMut?(' mutant-effect '+getMutationEffect(pet.baseId||pet.id)):'')+'" style="'+(isMut?'position:relative;overflow:visible;':'')+'" onclick="Game.selectBagItem('+idx+')">'+
-     '<img src="'+petImg(pet.id,512,isMut)+'" class="bag-item-img">'+
+    html+='<div class="bag-item rar'+pet.rarity+(selected?' selected':'')+(isMut?(' mutant-effect '+getMutationEffect(pet.baseId||pet.id)):'')+'" onclick="Game.selectBagItem('+idx+')">'+
+     '<img src="'+petImg(pet.id,512,isMut)+'" class="bag-item-img" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
+     '<div class="bag-item-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:28px;color:var(--gold);">'+pet.name.charAt(0)+'</div>'+
      '<div class="bag-item-level">Lv.'+st.level+'</div>'+
      '<div class="bag-item-stars">'+starStr(st.stars)+'</div>'+
      (isMut?'<div class="bag-item-tag mutant">异</div>':'')+
@@ -5430,7 +5431,7 @@ const Game={
    }else if(item.type==='item'){
     const it=item.item;
     html+='<div class="bag-item rar'+it.quality+(selected?' selected':'')+'" onclick="Game.selectBagItem('+idx+')">'+
-     '<img src="'+itemImg(item.id)+'" class="bag-item-img bag-icon" style="object-fit:contain;"><div class="bag-item-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:28px;color:var(--gold);">物</div>'+
+     '<img src="'+itemImg(item.id)+'" class="bag-item-img bag-icon" style="object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="bag-item-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:28px;color:var(--gold);">物</div>'+
      '<div class="bag-item-count">×'+item.count+'</div>'+
      '<div class="bag-item-name">'+esc(it.name)+'</div></div>';
    }else if(item.type==='artifact'){
@@ -5438,13 +5439,13 @@ const Game={
     const artType=art.slot||'sup';
     const typeColor=artType==='atk'?'#c05040':artType==='def'?'#4a80b0':'#9070b0';
     html+='<div class="bag-item rar'+art.quality+(selected?' selected':'')+' artifact-type-'+artType+'" onclick="Game.selectBagItem('+idx+')">'+
-     '<img src="'+artifactImg(item.id)+'" class="bag-item-img bag-icon" style="object-fit:contain;"><div class="bag-item-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:28px;color:var(--gold);">法</div>'+
+     '<img src="'+artifactImg(item.id)+'" class="bag-item-img bag-icon" style="object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="bag-item-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:28px;color:var(--gold);">法</div>'+
      '<div class="bag-item-tag" style="background:'+typeColor+';color:#fff;top:16px;">'+(artType==='atk'?'攻':artType==='def'?'防':'辅')+'</div>'+
      (item.equipped?'<div class="bag-item-tag team">装备中</div>':'')+
      '<div class="bag-item-name">'+esc(art.name)+'</div></div>';
    }else if(item.type==='material'){
     html+='<div class="bag-item rar2'+(selected?' selected':'')+'" onclick="Game.selectBagItem('+idx+')">'+
-     '<img src="'+materialImg(item.id)+'" class="bag-item-img bag-icon" style="object-fit:contain;"><div class="bag-item-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:24px;color:var(--gold);">材</div>'+
+     '<img src="'+materialImg(item.id)+'" class="bag-item-img bag-icon" style="object-fit:contain;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="bag-item-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:24px;color:var(--gold);">材</div>'+
      '<div class="bag-item-count">×'+item.count+'</div>'+
      '<div class="bag-item-name">'+esc(item.name)+'</div></div>';
    }
