@@ -36,3 +36,6 @@
 
 # 允许.gitignore本身
 !.gitignore
+
+# 允许根目录的背景图
+!map_bg.jpg
