@@ -1244,10 +1244,19 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .team-pet-item-name{font-size:13px;font-weight:700;margin-bottom:2px}
 .team-pet-item-meta{font-size:10px;color:var(--txt2);display:flex;gap:6px}
 .team-pet-item-meta .el-tag{padding:0 4px;color:#fff;font-weight:900}
-.team-bonds-panel{width:100%;max-width:560px;padding:14px;background:var(--card);border:2px solid var(--gold-dk)}
+.team-bonds-panel{width:100%;max-width:560px;max-height:320px;overflow-y:auto;padding:14px;background:var(--card);border:2px solid var(--gold-dk)}
 .team-bonds-title{font-size:13px;font-weight:900;color:var(--gold);margin-bottom:8px}
-.bond-item{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(184,148,58,.1)}
-.bond-item .bond-effect{color:var(--heal)}
+.bond-col-title{font-size:11px;font-weight:900;padding:6px 8px;margin:8px 0 4px;background:var(--bg-dark);border-left:3px solid var(--gold);color:var(--gold)}
+.bond-col-title.bond-on{border-color:#5aaa5a;color:#9ad080}
+.bond-col-title.bond-near{border-color:#e0a830;color:#e0c860}
+.bond-col-title.bond-off{border-color:#8a8a8a;color:#aaa}
+.bond-item{display:flex;justify-content:space-between;padding:6px 8px;font-size:11px;border-bottom:1px solid rgba(184,148,58,.1);cursor:pointer;transition:background .15s}
+.bond-item:hover{background:rgba(184,148,58,.1)}
+.bond-item.bond-on{color:#9ad080}
+.bond-item.bond-near{color:#e0c860}
+.bond-item.bond-off{color:#888}
+.bond-item .bond-effect{color:var(--heal);font-size:10px}
+.bond-empty{font-size:10px;color:var(--txt3);padding:4px 8px;font-style:italic}
 .drag-ghost{opacity:.5}
 
 #view-fusion{background:var(--ink)}
@@ -4416,8 +4425,24 @@ const Game={
   }).join('');
   const arts=ARTIFACT_SLOTS.map(sl=>{const k=sl[0],cn=sl[1],cur=eq[k];
    const owned=this.player.artifacts.filter(a=>ARTIFACTS[a]&&ARTIFACTS[a].slot===cn);
-   return '<div class="pp-art-row"><label>'+cn+'</label><select onchange="Game.equip(\''+id+'\',this.value,\''+k+'\')"><option value="">— 空 —</option>'+
-   owned.map(a=>{const lv=this.artLevelOf(a);return '<option value="'+a+'" '+(cur===a?'selected':'')+'>'+esc(ARTIFACTS[a].name)+(lv?' +'+lv:'')+'（'+Object.entries(ARTIFACTS[a].stats).map(([kk,vv])=>kk+'+'+Math.round(vv*(1+lv*0.1))).join(' ')+'）</option>'}).join('')+'</select></div>';
+   const curArt=cur?ARTIFACTS[cur]:null;
+   const curLv=cur?this.artLevelOf(cur):0;
+   const statNameMap={hp:'生命',atk:'物攻',matk:'法攻',def:'物防',mdef:'法防',spd:'速度',crit:'暴击',eva:'闪避',hit:'命中'};
+   const statHtml=curArt?Object.entries(curArt.stats).map(([kk,vv])=>{
+     const actualVal=Math.round(vv*(1+curLv*0.1));
+     return '<span style="display:inline-block;padding:2px 6px;margin:2px;background:#2a3a2a;border:1px solid #4a6a4a;font-size:10px;color:#9ad080;">'+statNameMap[kk]+' +'+actualVal+'</span>';
+   }).join(''):'<span style="font-size:10px;color:var(--txt3);">未装备</span>';
+   return '<div class="pp-art-row" style="margin-bottom:8px;padding:8px;background:var(--bg-dark);border:1px solid var(--gold-dk);">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'+
+    '<label style="color:var(--gold);font-weight:900;font-size:12px;">'+cn+'槽</label>'+
+    (curArt?'<span style="font-size:10px;color:'+RARITY[curArt.rarity].color+';">'+RARITY[curArt.rarity].name+(curLv?' +'+curLv:'')+'</span>':'')+
+    '</div>'+
+    (curArt?'<div style="font-size:12px;color:var(--txt);font-weight:900;margin-bottom:4px;cursor:pointer;" onclick="Game.showArtifactDetail(\''+cur+'\')" title="点击查看详情">'+esc(curArt.name)+' ↗</div>':'')+
+    '<div style="margin-bottom:4px;">'+statHtml+'</div>'+
+    (curArt?'<div style="font-size:10px;color:var(--txt2);line-height:1.4;font-style:italic;">'+esc(curArt.skill)+'</div>':'')+
+    '<select onchange="Game.equip(\''+id+'\',this.value,\''+k+'\')" style="width:100%;margin-top:4px;padding:4px;background:var(--card);color:var(--txt);border:1px solid var(--gold-dk);font-size:11px;">'+
+    '<option value="">— 更换法宝 —</option>'+
+    owned.map(a=>{const lv=this.artLevelOf(a);return '<option value="'+a+'" '+(cur===a?'selected':'')+'>'+esc(ARTIFACTS[a].name)+(lv?' +'+lv:'')+'</option>'}).join('')+'</select></div>';
   }).join('');
   const expNeed=expToLevel(stt.level);
   const items=this.player.items||{};
@@ -4462,7 +4487,7 @@ const Game={
    '<div class="pp-col">'+
     (getPassive(id)?'<div class="pp-sec"><div class="pp-sec-title">被动特性</div><div class="pp-passive"><span class="pp-passive-name">'+getPassive(id).name+'</span><span class="pp-passive-type pp-type-'+getPassive(id).type+'">'+getPassive(id).type+'</span><div class="pp-passive-desc">'+getPassive(id).desc+'</div></div></div>':'')+'<div class="pp-sec"><div class="pp-sec-title">四层技能</div>'+skills+'</div>'+
     '<div class="pp-sec"><div class="pp-sec-title">法宝三槽（攻/防/辅）</div>'+arts+
-     (sets.length?'<div style="font-size:10px;color:#9ad080;line-height:1.6">'+sets.map(s=>'【'+s.name+' '+s.count+'件】'+esc(s.desc)).join('<br>')+'</div>':'<div style="font-size:9px;color:var(--txt3);line-height:1.5">集齐同套攻/防/辅各1件激活套装；法宝由关卡/秘境掉落。</div>')+
+     (sets.length?'<div style="margin-top:8px;padding:8px;background:#1a2a1a;border:1px solid #4a8a4a;"><div style="font-size:11px;color:#9ad080;font-weight:900;margin-bottom:4px;">✓ 已激活套装（'+sets.length+'）</div>'+sets.map(s=>'<div style="font-size:10px;color:#9ad080;line-height:1.6;margin-bottom:2px;">【'+s.name+' '+s.count+'/3件】'+esc(s.desc)+'</div>').join('')+'</div>':'<div style="font-size:10px;color:var(--txt3);line-height:1.5;padding:6px;background:var(--bg-dark);border:1px solid var(--gold-dk);">集齐同套攻/防/辅各1件激活套装效果；法宝由关卡/秘境掉落。</div>')+
      '<div style="margin-top:8px;display:flex;gap:6px;"><button class="btn btn-xs" style="flex:1;" onclick="Game.openArtifactForge()">法宝打造（碎片'+(this.player.items&&this.player.items.art_frag||0)+'）</button><button class="btn btn-xs" style="flex:1;" onclick="Game.openArtifactEnhance()">法宝强化</button></div></div>'+
    '</div></div>';
  },
@@ -4497,6 +4522,38 @@ const Game={
   const arts=this.player.artifacts||[];
   modal('法宝装备（在御兽详情中装备）',arts.map(a=>{const ar=ARTIFACTS[a];return '【'+ar.name+'】'+ar.slot+'位 · '+Object.entries(ar.stats).map(([k,v])=>k+'+'+v).join(' ')+'\n  特效：'+ar.skill}).join('\n\n')+'\n\n每只御兽可装备1件法宝，前往「御兽图鉴」选择御兽进行装备。',
   [{t:'前往图鉴',primary:true,fn:()=>this.showView('dex')},{t:'关闭'}]);
+ },
+ showArtifactDetail(artId){
+  const ar=ARTIFACTS[artId];if(!ar){this.tip('法宝不存在');return}
+  const lv=this.artLevelOf(artId);
+  const statNameMap={hp:'生命',atk:'物攻',matk:'法攻',def:'物防',mdef:'法防',spd:'速度',crit:'暴击',eva:'闪避',hit:'命中'};
+  const setInfo=Object.entries(ARTIFACT_SETS).find(([sid,s])=>s.parts.includes(artId));
+  const equippedBy=[];
+  Object.entries(this.player.teams||{}).forEach(([tid,team])=>{
+    [...team.front,...team.back].forEach(pid=>{
+      if(pid){const eq=this.eqOf(pid);if(Object.values(eq).includes(artId))equippedBy.push(PETS[pid]?PETS[pid].name:pid)}
+    });
+  });
+  modal('法宝详情 · '+ar.name,
+   '<div style="font-size:13px;line-height:1.8;">'+
+   '<div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">'+
+   '<div style="width:60px;height:60px;background:var(--bg-dark);border:2px solid '+RARITY[ar.rarity].color+';display:flex;align-items:center;justify-content:center;font-size:24px;">⚔</div>'+
+   '<div>'+
+   '<div style="font-size:15px;font-weight:900;color:'+RARITY[ar.rarity].color+';">'+esc(ar.name)+(lv?' +'+lv:'')+'</div>'+
+   '<div style="font-size:11px;color:var(--txt2);">'+ar.slot+'槽 · '+RARITY[ar.rarity].name+'级</div>'+
+   '</div></div>'+
+   '<div style="margin-bottom:10px;"><b style="color:var(--gold);">基础属性：</b></div>'+
+   '<div style="margin-bottom:10px;">'+Object.entries(ar.stats).map(([k,v])=>{
+     const actualVal=Math.round(v*(1+lv*0.1));
+     return '<div style="display:flex;justify-content:space-between;padding:4px 8px;background:var(--bg-dark);border:1px solid var(--gold-dk);margin-bottom:3px;"><span style="color:var(--txt2);">'+statNameMap[k]+'</span><span style="color:#9ad080;font-weight:900;">+'+actualVal+(lv?'（基础+'+v+'，强化+'+lv+'级）':'')+'</span></div>';
+   }).join('')+'</div>'+
+   '<div style="margin-bottom:10px;"><b style="color:var(--gold);">法宝特效：</b></div>'+
+   '<div style="padding:8px;background:#2a2a1a;border:1px solid #8a8a4a;margin-bottom:10px;font-size:12px;color:#d8d890;font-style:italic;">'+esc(ar.skill)+'</div>'+
+   (setInfo?'<div style="margin-bottom:10px;"><b style="color:var(--gold);">所属套装：</b><span style="color:#9ad080;">'+setInfo[1].name+'</span><div style="font-size:11px;color:var(--txt2);margin-top:4px;">2件：'+setInfo[1].desc2+'<br>3件：'+setInfo[1].desc3+'</div></div>':'')+
+   (equippedBy.length?'<div style="margin-bottom:10px;"><b style="color:var(--gold);">装备者：</b>'+equippedBy.map(n=>'<span style="display:inline-block;padding:2px 6px;margin:2px;background:#2a3a4a;border:1px solid #4a6a8a;font-size:11px;color:#8ab8d8;">'+n+'</span>').join('')+'</div>':'')+
+   '<div style="font-size:11px;color:var(--txt3);">法宝强化每级提升10%基础属性，最高+5级</div>'+
+   '</div>',
+   [{t:'关闭',primary:true}]);
  },
 
  // ===== 设置
@@ -5075,18 +5132,52 @@ const Game={
   const on=[],near=[],off=[];
   const jobs={};team.forEach(id=>jobs[PETS[id].job]=(jobs[PETS[id].job]||0)+1);
   const jobEff={'御卫':'全队减伤12%','狂战':'全队破甲10%','法尊':'法术增伤15%','影袭':'速度+18%','辅灵':'治疗量+20%','控玄':'控制时长+15%','均衡':'全属性+5%'};
-  Object.entries(jobs).forEach(([j,c])=>{if(c>=2)on.push({n:'职业协力·'+j+' ×'+c,e:jobEff[j]})});
-  const els=new Set(team.map(id=>PETS[id].element));if(els.size>=3)on.push({n:'五行协力（'+els.size+'种五行）',e:'克制伤害+5%'});
-  Object.values(BONDS_FULL).forEach(b=>{if(!b.pets||!b.pets.length)return;const have=b.pets.filter(p=>ids.has(p)).length;if(have===b.pets.length)on.push({n:b.name,e:b.effect});
-   else if(have===b.pets.length-1){const miss=b.pets.find(p=>!ids.has(p));near.push({n:b.name,e:b.effect,miss})}
-   else if(have>0)off.push({n:b.name,e:b.effect,have:have,total:b.pets.length})});
-  const row=(b,cls,miss)=>'<div class="bond-item '+cls+'"><span>'+b.n+(miss?'（差：'+PETS[miss].name+'）':b.total?'（'+b.have+'/'+b.total+'）':'')+'</span><span class="bond-effect">'+b.e+'</span></div>';
-  let html='<div class="bond-col-title bond-on">已激活</div>'+(on.map(b=>row(b,'bond-on')).join('')||'<div class="bond-empty">暂无</div>');
-  html+='<div class="bond-col-title bond-near">差1只激活</div>'+(near.length?near.map(b=>'<div class="bond-item bond-near" onclick="Game.gotoMissing(\''+b.miss+'\')"><span>'+b.n+'（点击查看：'+PETS[b.miss].name+'）</span><span class="bond-effect">'+b.e+'</span></div>').join(''):'<div class="bond-empty">暂无</div>');
-  html+='<div class="bond-col-title bond-off">未激活</div>'+(off.map(b=>row(b,'bond-off')).join('')||'<div class="bond-empty">暂无</div>');
+  Object.entries(jobs).forEach(([j,c])=>{if(c>=2)on.push({n:'职业协力·'+j+' ×'+c,e:jobEff[j],pets:team.filter(id=>PETS[id].job===j),type:'job'})});
+  const els=new Set(team.map(id=>PETS[id].element));if(els.size>=3)on.push({n:'五行协力（'+els.size+'种五行）',e:'克制伤害+5%',pets:team,type:'element'});
+  Object.values(BONDS_FULL).forEach(b=>{if(!b.pets||!b.pets.length)return;const have=b.pets.filter(p=>ids.has(p)).length;if(have===b.pets.length)on.push({n:b.name,e:b.effect,pets:b.pets,type:'story'});
+   else if(have===b.pets.length-1){const miss=b.pets.find(p=>!ids.has(p));near.push({n:b.name,e:b.effect,pets:b.pets,miss,type:'story'})}
+   else if(have>0)off.push({n:b.name,e:b.effect,pets:b.pets,have:have,total:b.pets.length,type:'story'})});
+  const row=(b,cls,miss)=>'<div class="bond-item '+cls+'" onclick="Game.showBondDetail(\''+b.n.replace(/'/g,"\\'")+'\',\''+b.type+'\')" title="点击查看详情"><span>'+b.n+(miss?'（差：'+PETS[miss].name+'）':b.total?'（'+b.have+'/'+b.total+'）':'')+'</span><span class="bond-effect">'+b.e+'</span></div>';
+  let html='<div class="bond-col-title bond-on">✓ 已激活（'+on.length+'）</div>'+(on.map(b=>row(b,'bond-on')).join('')||'<div class="bond-empty">暂无已激活羁绊</div>');
+  html+='<div class="bond-col-title bond-near">⚡ 差1只激活（'+near.length+'）</div>'+(near.length?near.map(b=>'<div class="bond-item bond-near" onclick="Game.showBondDetail(\''+b.n.replace(/'/g,"\\'")+'\',\'story\')" title="点击查看详情"><span>'+b.n+'（差：'+PETS[b.miss].name+'）</span><span class="bond-effect">'+b.e+'</span></div>').join(''):'<div class="bond-empty">暂无差1只激活的羁绊</div>');
+  html+='<div class="bond-col-title bond-off">○ 部分激活（'+off.length+'）</div>'+(off.length?off.map(b=>row(b,'bond-off')).join(''):'<div class="bond-empty">暂无部分激活的羁绊</div>');
+  html+='<div style="font-size:10px;color:var(--txt3);margin-top:8px;text-align:center;">点击任意羁绊查看详细需求与效果</div>';
   $('team-bonds-panel').innerHTML=html;
  },
- gotoMissing(id){if(this.player.ownedPets.includes(id)){this.showView('dex');this.selectDexPet(id)}else this.tip('尚未获得「'+PETS[id].name+'」，'+this.sourceText(id))},
+ showBondDetail(name,type){
+  let pets=[],effect='',desc='';
+  if(type==='job'){
+   const jobName=name.replace('职业协力·','').split(' ×')[0];
+   const jobEff={'御卫':'全队减伤12%','狂战':'全队破甲10%','法尊':'法术增伤15%','影袭':'速度+18%','辅灵':'治疗量+20%','控玄':'控制时长+15%','均衡':'全属性+5%'};
+   effect=jobEff[jobName]||'';
+   desc='上阵2只及以上同职业御兽激活';
+   pets=Object.values(PETS).filter(p=>p.job===jobName).slice(0,8).map(p=>p.name);
+  }else if(type==='element'){
+   effect='克制伤害+5%';
+   desc='上阵3种及以上不同五行御兽激活';
+   pets=['金','木','水','火','土'];
+  }else{
+   const bond=Object.values(BONDS_FULL).find(b=>b.name===name);
+   if(bond){effect=bond.effect;pets=bond.pets.map(id=>PETS[id]?PETS[id].name:id);desc=bond.desc||'集齐指定御兽激活';}
+  }
+  const team=[...this.player.team.front,...this.player.team.back].filter(Boolean);
+  const teamIds=new Set(team);team.forEach(id=>{const p=PETS[id];if(p&&p.baseId)teamIds.add(p.baseId);else if(id.endsWith('_m'))teamIds.add(id.slice(0,-2));});
+  const petListHtml=pets.map(p=>{
+   const petObj=Object.values(PETS).find(pp=>pp.name===p);
+   const owned=petObj&&(teamIds.has(petObj.id)||this.player.ownedPets.includes(petObj.id));
+   const inTeam=petObj&&teamIds.has(petObj.id);
+   return '<div style="display:inline-block;padding:4px 8px;margin:3px;background:'+(inTeam?'#2a4a2a':owned?'#2a3a4a':'#3a2a2a')+';border:1px solid '+(inTeam?'#5aaa5a':owned?'#5a8aaa':'#aa5a5a')+';font-size:11px;color:'+(inTeam?'#9ad080':owned?'#8ab8d8':'#d88a8a')+';">'+p+(inTeam?' ✓':owned?'':' ✗')+'</div>';
+  }).join('');
+  modal('羁绊详情 · '+name,
+   '<div style="font-size:13px;line-height:1.8;">'+
+   '<div style="margin-bottom:10px;"><b style="color:var(--gold);">效果：</b><span style="color:#9ad080;">'+effect+'</span></div>'+
+   '<div style="margin-bottom:10px;"><b style="color:var(--gold);">激活条件：</b>'+desc+'</div>'+
+   '<div style="margin-bottom:10px;"><b style="color:var(--gold);">所需御兽（'+pets.length+'只）：</b></div>'+
+   '<div style="margin-bottom:10px;">'+petListHtml+'</div>'+
+   '<div style="font-size:11px;color:var(--txt3);">✓ = 已上阵　✓ = 已拥有　✗ = 未获得</div>'+
+   '</div>',
+   [{t:'关闭',primary:true}]);
+ },
  calcBonds(){const team=[...this.player.team.front,...this.player.team.back].filter(Boolean);const ids=new Set(team);return calcBondsFull(team)}
 , // ===== 成就系统
  checkAchievements(){
