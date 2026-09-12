@@ -4462,7 +4462,7 @@ const Game={
    '</div>'+
    '<div class="pp-actions"><div style="font-size:11px;color:var(--txt2);margin-bottom:6px;width:100%;">'+(stt.stars>=10?'已达10星满星':('升到 '+(stt.stars+1)+' 星需 '+pet.name+'精魄 ×'+needShards+(stt.stars===4?' + 觉醒石×20':'')+'　'+shardTxt))+'</div>'+
    (stt.stars<10?'<button class="btn btn-primary" onclick="Game.starUp(\''+id+'\')">升星</button>':'')+
-   (stt.stars>=10?'<button class="btn '+(stt.breakthrough>=20?'':'btn-primary')+'" '+(stt.breakthrough>=20?'disabled':'onclick="Game.breakthroughPet(\''+id+'\')"')+'>强化突破+'+stt.breakthrough+'（每次20精魄，全属性+1%）</button>':'')+
+   (stt.stars>=10?'<button class="btn '+(stt.breakthrough>=20?'':'btn-primary')+'" '+(stt.breakthrough>=20?'disabled':'onclick="Game.breakthroughPet(\''+id+'\')"')+'>强化突破+'+stt.breakthrough+'（每次20精魄，生命+50/攻+8/灵+8/防+5/魔防+5/速+2）</button>':'')+
    (EVOLVE[id]?'<button class="btn" onclick="Game.askEvolve(\''+id+'\')">进化</button>':'')+
    (stt.stars>1?'<button class="btn" onclick="Game.askResetPet(\''+id+'\')">重置返还</button>':'')+
    '<button class="btn" onclick="Game.gotoPetDetail(\''+id+'\')">完整养成页</button></div>';
@@ -4720,7 +4720,7 @@ const Game={
     '<div class="stat-row"><span class="stat-name">获取途径</span><span class="stat-value" style="font-size:11px">'+this.sourceText(id)+'</span></div>'+
     (st.stars<10?('<div class="grow-row"><div class="grow-info">升到 '+(st.stars+1)+' 星需 '+pet.name+'精魄 ×'+(STAR_COST[st.stars+1]||'—')+(st.stars===4?' + 觉醒石×20':'')+'<br>当前碎片：'+(this.totalShardsOf(id))+(isMut?'（变异'+(this.player.shards[id]||0)+'+普通'+(this.player.shards[baseId]||0)+'，互通可用）':'')+'</div>'+
     '<button class="btn btn-small btn-primary" onclick="Game.starUp(\''+id+'\')">升星</button></div>'):'<div class="grow-row"><div class="grow-info" style="color:var(--gold-lt)">已达10星满星</div></div>')+
-    (st.stars>=10?('<div class="grow-row" style="margin-top:6px;"><div class="grow-info">强化突破 +'+st.breakthrough+'/20（全属性+'+(st.breakthrough*1)+'%）<br>下一级需 '+pet.name+'精魄 ×20　当前碎片：'+(this.totalShardsOf(id))+(isMut?'（变异'+(this.player.shards[id]||0)+'+普通'+(this.player.shards[baseId]||0)+'，互通可用）':'')+'</div><button class="btn btn-small '+(st.breakthrough>=20?'':'btn-primary')+'" '+(st.breakthrough>=20?'disabled':'onclick="Game.breakthroughPet(\''+id+'\')"')+'>强化突破'+(st.breakthrough>=20?'已满':'')+'</button></div>'):'')+
+    (st.stars>=10?('<div class="grow-row" style="margin-top:6px;"><div class="grow-info">强化突破 +'+st.breakthrough+'/20（生命+'+(st.breakthrough*50)+'/攻击+'+(st.breakthrough*8)+'/灵力+'+(st.breakthrough*8)+'/防御+'+(st.breakthrough*5)+'/魔防+'+(st.breakthrough*5)+'/速度+'+(st.breakthrough*2)+'）<br>下一级需 '+pet.name+'精魄 ×20　当前碎片：'+(this.totalShardsOf(id))+(isMut?'（变异'+(this.player.shards[id]||0)+'+普通'+(this.player.shards[baseId]||0)+'，互通可用）':'')+'</div><button class="btn btn-small '+(st.breakthrough>=20?'':'btn-primary')+'" '+(st.breakthrough>=20?'disabled':'onclick="Game.breakthroughPet(\''+id+'\')"')+'>强化突破'+(st.breakthrough>=20?'已满':'')+'</button></div>'):'')+
     (st.stars>1?('<div class="grow-row" style="margin-top:6px;"><div class="grow-info">重置回1星，返还80%升星精魄'+(st.stars>=5?'与觉醒石':'')+'（等级保留）</div><button class="btn btn-small" onclick="Game.askResetPet(\''+id+'\')">重置返还</button></div>'):'')+(EVOLVE[id]?this.evolveRowHtml(id,st,pet):'')+'</div>'+
    '<div class="dex-detail-section"><div class="dex-detail-section-title">五维属性雷达</div>'+this.statRadar(calc)+'</div>'+
    '<div class="dex-detail-section"><div class="dex-detail-section-title">七维战斗属性（含养成/法宝）</div>'+
@@ -4772,7 +4772,7 @@ const Game={
   const PCT=['hp','atk','matk','def','mdef','spd'];
   artifactSetsOf(eq).forEach(set=>{Object.entries(set.b).forEach(([k,v])=>{if(PCT.indexOf(k)>=0)c[k]=(c[k]||0)*(1+v);else c[k]=(c[k]||0)+v})});
   if(st.mutated)['hp','atk','matk','def','mdef','spd'].forEach(k=>c[k]=(c[k]||0)*(1+MUTATION.statBonus));
-  if(st.breakthrough>0)['hp','atk','matk','def','mdef','spd'].forEach(k=>c[k]=(c[k]||0)*(1+st.breakthrough*0.01));
+  if(st.breakthrough>0){c.hp+=st.breakthrough*50;c.atk+=st.breakthrough*8;c.matk+=st.breakthrough*8;c.def+=st.breakthrough*5;c.mdef+=st.breakthrough*5;c.spd+=st.breakthrough*2}
   if(st.evolutionBranch){const eb=EVOLUTION_BRANCHES[id];if(eb){const br=eb.branches.find(b=>b.name===st.evolutionBranch);if(br&&br.stats_mult)Object.entries(br.stats_mult).forEach(([k,v])=>{if(c[k]!==undefined)c[k]*=v})}}
   ['hp','atk','matk','def','mdef','spd'].forEach(k=>c[k]=Math.round(c[k]));['crit','eva','hit'].forEach(k=>c[k]=Math.round(c[k]*10)/10);
   return c;
@@ -4833,7 +4833,7 @@ const Game={
   if(remain>0){this.player.shards[baseId]=(this.player.shards[baseId]||0)-remain}
   st.breakthrough++;
   SaveSystem.save();SFX.breakthrough();
-  this.tip(PETS[id].name+' 强化突破 +'+st.breakthrough+'（基础属性+'+(st.breakthrough*1)+'%）');
+  this.tip(PETS[id].name+' 强化突破 +'+st.breakthrough+'（生命+50/攻击+8/灵力+8/防御+5/魔防+5/速度+2）');
   this.refreshPetView(id);
  },
  refreshPetView(id){if(this.panelPet){this.panelPet=id;this.renderPetPanel();this.renderDashTeam()}else this.selectDexPet(id)},
