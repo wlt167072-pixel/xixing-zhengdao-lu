@@ -4135,7 +4135,7 @@ function calcBondsFull(teamIds){
  const out=[];if(!teamIds||!teamIds.length)return out;
  const jobN={},facN={};
  teamIds.forEach(function(id){const p=PETS[id];if(!p)return;if(p.job)jobN[p.job]=(jobN[p.job]||0)+1;if(p.faction)facN[p.faction]=(facN[p.faction]||0)+1});
- const idSet=new Set(teamIds);teamIds.forEach(id=>{const p=PETS[id];if(p&&p.baseId)idSet.add(p.baseId);});const best={};
+ const idSet=new Set(teamIds);teamIds.forEach(id=>{const p=PETS[id];if(p&&p.baseId)idSet.add(p.baseId);else if(id.endsWith('_m'))idSet.add(id.slice(0,-2));});const best={};
  Object.values(BONDS_FULL).forEach(function(b){
   let hit=false,key=null;
   if(b.type==='job'){key='j:'+b.job;hit=(jobN[b.job]||0)>=b.count}
@@ -5071,7 +5071,7 @@ const Game={
   this.renderTeam();SaveSystem.save();if(typeof Guide!=='undefined')Guide.advance('team');
  },
  renderBonds(){
-  const team=[...this.player.team.front,...this.player.team.back].filter(Boolean);const ids=new Set(team);
+  const team=[...this.player.team.front,...this.player.team.back].filter(Boolean);const ids=new Set(team);team.forEach(id=>{const p=PETS[id];if(p&&p.baseId)ids.add(p.baseId);else if(id.endsWith('_m'))ids.add(id.slice(0,-2));});
   const on=[],near=[],off=[];
   const jobs={};team.forEach(id=>jobs[PETS[id].job]=(jobs[PETS[id].job]||0)+1);
   const jobEff={'御卫':'全队减伤12%','狂战':'全队破甲10%','法尊':'法术增伤15%','影袭':'速度+18%','辅灵':'治疗量+20%','控玄':'控制时长+15%','均衡':'全属性+5%'};
