@@ -6899,7 +6899,7 @@ const Battle={
 // ---------- 渲染（增量：单位容器复用，仅更新数值）
 Object.assign(Battle,{
  render(){
-  // 固定 2列×3排：敌方列序[后排,前排]（前排靠中线），我方列序[前排,后排]
+  // 固定 2列×3排：双方列序均为[后排,前排]（前排靠中线，后排靠外）
   const fillGrid=(rid,side,colA,colB)=>{
    const box=$(rid);const by=(row,key)=>side.find(u=>u.row===key&&(u.formationPos%3)===row);
    const cells=[];
@@ -6911,8 +6911,10 @@ Object.assign(Battle,{
    }
    cells.forEach(u=>{if(u)this.updateUnit(u)});
   };
-  fillGrid('enemy-grid',this.enemyUnits,'back','front');
-  fillGrid('player-grid',this.playerUnits,'front','back');
+  // 我方（左侧）：左列后排，右列前排（前排靠中线）
+  fillGrid('player-grid',this.playerUnits,'back','front');
+  // 敌方（右侧）：左列前排，右列后排（前排靠中线）
+  fillGrid('enemy-grid',this.enemyUnits,'front','back');
   $('battle-turn').textContent=this.turn;
   this.updateCaptureGlow();
   if(this.currentActor&&this.currentActor.alive)this.renderActorMeta(this.currentActor);
