@@ -4188,7 +4188,7 @@ Object.assign(DIALOGUES,STAGE_DIALOGUES_11_81);
 
 // ============================================================ Game
 const Game={
- currentView:'title',clearedStages:{},player:SaveSystem.defaultPlayer(),slot:1,
+ currentView:'title',clearedStages:{},player:SaveSystem.defaultPlayer(),slot:1,battleSpeed:1,
  dexEl:'all',dexJob:'all',dexRarity:'all',dexFaction:'all',dexSort:'default',dexQuery:'',selectedDexPet:null,selectedDashPet:null,panelPet:null,dragPet:null,guideStep:0,guideDone:false,
 
  syncTeam(){this.player.team=this.player.teams[this.player.activeTeam];this._dedupeTeam()},
@@ -4241,10 +4241,10 @@ const Game={
   if(v==='dialog'&&typeof Guide!=='undefined')Guide.show('dialog');
   if(v==='title'){this.refreshTitle();SFX.startBgm('title')}
  },
- newGame(){const go=()=>{this.player=SaveSystem.defaultPlayer();this.syncTeam();this.clearedStages={};localStorage.removeItem('xxzdl_guide_done');Game.guideDone=false;SaveSystem.save();this.showView('menu');Guide.start()};
+ newGame(){const go=()=>{this.player=SaveSystem.defaultPlayer();this.battleSpeed=1;this.syncTeam();this.clearedStages={};localStorage.removeItem('xxzdl_guide_done');Game.guideDone=false;SaveSystem.save();this.showView('menu');Guide.start()};
   if(SaveSystem.has())modal('新的证道','将覆盖当前存档槽 '+this.slot+'，确定重新开始吗？',[{t:'取消'},{t:'确定重来',primary:true,fn:go}]);else go()},
  continueGame(){const d=SaveSystem.load();if(!d){this.tip('暂无存档，请选择新的证道');return}
-  this.player=Object.assign(SaveSystem.defaultPlayer(),d.player);this.syncTeam();this.clearedStages=d.cleared||{};this.tickStamina();this.showView('menu');Guide.start()},
+  this.player=Object.assign(SaveSystem.defaultPlayer(),d.player);this.battleSpeed=this.player.battleSpeed||1;this.syncTeam();this.clearedStages=d.cleared||{};this.tickStamina();this.showView('menu');Guide.start()},
  // 体力离线/在线恢复：每6分钟1点，上限 staminaMax（GDD）
  tickStamina(){
   const p=this.player;if(!p)return;p.staminaMax=p.staminaMax||120;
@@ -6473,7 +6473,7 @@ const Battle={
 
  init(stage,node,onDone,onAbort){
   this.stage=stage;this.node=node;this.onDone=onDone;this.onAbort=onAbort;
-  this.turn=1;this.speed=1;this.auto=true;this.paused=false;this.battleEnded=false;this.logs=[];this.timers=[];this.waitQueue=[];
+  this.turn=1;this.speed=Game.battleSpeed||1;this.auto=true;this.paused=false;this.battleEnded=false;this.logs=[];this.timers=[];this.waitQueue=[];
   this.units=[];this.playerUnits=[];this.enemyUnits=[];this.lastBlow=null;
   this.stats={dmgDealt:{},dmgTaken:{},heal:{},kills:{}};this.expBefore={};
   this.isBoss=node.type==='boss';
@@ -6504,7 +6504,7 @@ const Battle={
  applyUnlockButtons(){
   const auto=$('btn-auto'),sp=$('btn-speed');
   auto.textContent='自动:'+(this.auto?'开':'关');auto.disabled=false;
-  sp.textContent='倍速 1x';
+  sp.textContent='倍速 '+(this.speed||1)+'x';
  },
  createUnit(petId,side,row,pos,customName){
   const base=PETS[petId];let c,stars,level;
@@ -7074,14 +7074,14 @@ Object.assign(Battle,{
   if(this.auto&&this.currentActor&&this.currentActor.side==='player'){const{skill,target}=this.aiChoose(this.currentActor);this.schedule(()=>this.doAction(this.currentActor,skill,target),300)}
  },
  autoStrategy(){const s=$('auto-strategy');return s?s.value:'burst'},
- bumpSpeed(dir){const order=[1,2,3,4];let i=order.indexOf(this.speed);const n=order[(i+(dir>0?1:order.length-1))%4];const need={2:10,3:25,4:40};if(need[n]&&Game.player.level<need[n]){Game.tip(n+'倍速需主角'+need[n]+'级');return}this.speed=n;$('btn-speed').textContent='倍速 '+this.speed+'x';SFX.click()},
+ bumpSpeed(dir){const order=[1,2,3,4];let i=order.indexOf(this.speed);const n=order[(i+(dir>0?1:order.length-1))%4];const need={2:10,3:25,4:40};if(need[n]&&Game.player.level<need[n]){Game.tip(n+'倍速需主角'+need[n]+'级');return}this.speed=n;Game.battleSpeed=n;if(Game.player)Game.player.battleSpeed=n;SaveSystem.save();$('btn-speed').textContent='倍速 '+this.speed+'x';SFX.click()},
  cycleTarget(){if(!this.selectingTarget)return;const actor=this.currentActor,s=this.pendingSkill;let pool=this.aliveEnemiesOf(actor);if(s.target==='back'){const b=pool.filter(u=>u.row==='back');if(b.length)pool=b}if(!pool.length)return;this.kbIdx=((this.kbIdx==null?-1:this.kbIdx)+1)%pool.length;this.selectingTarget=false;const t=pool[this.kbIdx];this.pendingSkill=null;this.doAction(actor,s,t)},
  changeSpeed(e){
   const lv=Game.player.level;const order=[1,2,3,4];let next=order[(order.indexOf(this.speed)+1)%4];
   if(next===2&&lv<10){Game.tip('2倍速需主角10级');return}
   if(next===3&&lv<25){Game.tip('3倍速需主角25级');return}
   if(next===4&&lv<40){Game.tip('4倍速需主角40级');return}
-  this.speed=next;(e.target||$('btn-speed')).textContent='倍速 '+this.speed+'x';SFX.click();
+  this.speed=next;Game.battleSpeed=next;if(Game.player)Game.player.battleSpeed=next;SaveSystem.save();(e.target||$('btn-speed')).textContent='倍速 '+this.speed+'x';SFX.click();
  },
 
  // ---------- 结算
