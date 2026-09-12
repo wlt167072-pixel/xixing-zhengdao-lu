@@ -5815,20 +5815,22 @@ const Game={
  },
  renderResourceShop(){
   const p=this.player;
-  let html='<div class="shop-section"><div class="shop-section-title">核心资源（每日/每周限购）</div>';
+  let html='<div class="shop-section"><div class="shop-section-title">核心资源（不限购）</div>';
   html+='<div class="shop-grid">';
   SHOP_CONFIG.resources.forEach(res=>{
-   const dailyBought=this.getShopLimit('daily',res.id);
-   const weeklyBought=this.getShopLimit('weekly',res.id);
-   const remaining=Math.min(res.dailyLimit-dailyBought,res.weeklyLimit-weeklyBought);
+   const dailyBought=(res.dailyLimit!==null&&res.dailyLimit!==undefined)?this.getShopLimit('daily',res.id):0;
+   const weeklyBought=(res.weeklyLimit!==null&&res.weeklyLimit!==undefined)?this.getShopLimit('weekly',res.id):0;
+   const isUnlimited=(res.dailyLimit===null||res.dailyLimit===undefined)&&(res.weeklyLimit===null||res.weeklyLimit===undefined);
+   const remaining=isUnlimited?Infinity:Math.min((res.dailyLimit||0)-dailyBought,(res.weeklyLimit||0)-weeklyBought);
    const canBuy=remaining>0&&(p.xianyu||0)>=res.price;
+   const limitText=isUnlimited?'不限购':('每日'+res.dailyLimit+'/每周'+res.weeklyLimit+'（剩余'+remaining+'）');
    html+='<div class="shop-item">'+
     '<img src="'+itemImg(res.id)+'" class="shop-item-img" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div style="display:none;width:64px;height:64px;align-items:center;justify-content:center;font-size:24px;color:var(--gold);">'+res.name.charAt(0)+'</div>'+
     '<div class="shop-item-name">'+res.name+'</div>'+
     '<div class="shop-item-meta">'+res.desc+'</div>'+
     '<div class="shop-item-price">'+res.price+' 仙玉</div>'+
-    '<div class="shop-item-limit">每日'+res.dailyLimit+'/每周'+res.weeklyLimit+'（剩余'+remaining+'）</div>'+
-    '<button class="shop-item-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyResource(\''+res.id+'\','+res.price+','+res.dailyLimit+','+res.weeklyLimit+')">'+(remaining>0?'购买':'已售罄')+'</button>'+
+    '<div class="shop-item-limit">'+limitText+'</div>'+
+    '<button class="shop-item-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyResource(\''+res.id+'\','+res.price+','+(res.dailyLimit===null?'null':res.dailyLimit)+','+(res.weeklyLimit===null?'null':res.weeklyLimit)+')">'+(remaining>0?'购买':'已售罄')+'</button>'+
     '</div>';
   });
   html+='</div></div>';
@@ -5836,16 +5838,17 @@ const Game={
   html+='<div class="shop-section"><div class="shop-section-title">特惠礼包（高性价比，限购）</div>';
   html+='<div class="shop-grid">';
   SHOP_CONFIG.packages.forEach(pkg=>{
-   const bought=this.getShopLimit(pkg.limitType,pkg.id);
-   const remaining=pkg.limitCount-bought;
+   const isUnlimited=pkg.limitType===null||pkg.limitType===undefined;
+   const bought=isUnlimited?0:this.getShopLimit(pkg.limitType,pkg.id);
+   const remaining=isUnlimited?Infinity:(pkg.limitCount||0)-bought;
    const canBuy=remaining>0&&(p.xianyu||0)>=pkg.price;
-   const limitText=pkg.limitType==='lifetime'?'终身限购':pkg.limitType==='weekly'?'每周限购':pkg.limitType==='monthly'?'每月限购':'限购';
+   const limitText=isUnlimited?'不限购':((pkg.limitType==='lifetime'?'终身限购':pkg.limitType==='weekly'?'每周限购':pkg.limitType==='monthly'?'每月限购':'限购')+pkg.limitCount+'次（剩余'+remaining+'）');
    html+='<div class="shop-package">'+
     '<div class="shop-package-title">'+pkg.name+'</div>'+
     '<div class="shop-package-content">'+pkg.content+'</div>'+
     '<div class="shop-package-price">'+pkg.price+' 仙玉</div>'+
-    '<div class="shop-package-limit">'+limitText+pkg.limitCount+'次（剩余'+remaining+'）</div>'+
-    '<button class="shop-package-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyPackage(\''+pkg.id+'\','+pkg.price+',\''+pkg.limitType+'\','+pkg.limitCount+')">'+(remaining>0?'购买':'已售罄')+'</button>'+
+    '<div class="shop-package-limit">'+limitText+'</div>'+
+    '<button class="shop-package-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyPackage(\''+pkg.id+'\','+pkg.price+','+(pkg.limitType===null?'null':'\''+pkg.limitType+'\'')+','+(pkg.limitCount===null?'null':pkg.limitCount)+')">'+(remaining>0?'购买':'已售罄')+'</button>'+
     '</div>';
   });
   html+='</div></div>';
