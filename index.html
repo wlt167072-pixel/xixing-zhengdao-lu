@@ -1465,6 +1465,7 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .shop-section{margin-bottom:24px}
 .shop-section-title{font-size:15px;color:var(--gold);font-weight:900;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--gold-dk);display:flex;justify-content:space-between;align-items:center}
 .shop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.shop-grid.lucky-grid{grid-template-columns:repeat(3,1fr)}
 .shop-item{background:var(--bg-dark);border:2px solid var(--gold-dk);padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative}
 .shop-item.rar5{border-color:var(--gold);box-shadow:0 0 8px rgba(232,144,32,.3)}
 .shop-item.rar4{border-color:#b050c8}
@@ -2860,7 +2861,7 @@ const SHOP_CONFIG={
  ],
  // 幸运商店配置
  luckyShop:{
-  slots:3,
+  slots:9,
   ssrChance:0.2,
   srChance:0.8,
   ssrPrice:3500,
@@ -5704,10 +5705,10 @@ const Game={
   });
   html+='</div></div>';
   // 幸运商店
-  html+='<div class="shop-section"><div class="shop-section-title">幸运商店（随机刷新SSR/SR宠物）</div>';
+  html+='<div class="shop-section"><div class="shop-section-title">幸运商店（随机刷新9只SSR/SR宠物）</div>';
   html+='<div class="lucky-shop-header"><span class="lucky-shop-info">幸运卷：'+(p.items.lucky_ticket||0)+'张（资源商店购买）</span>'+
    '<button class="lucky-shop-refresh" '+(p.items.lucky_ticket>0?'':'disabled')+' onclick="Game.refreshLuckyShop()">刷新（消耗1张幸运卷）</button></div>';
-  html+='<div class="shop-grid">';
+  html+='<div class="shop-grid lucky-grid">';
   const luckyPets=p.shop.luckyPets||[];
   luckyPets.forEach((pet,idx)=>{
    const petData=PETS[pet.id];if(!petData)return;
@@ -5828,11 +5829,12 @@ const Game={
    p.items.lucky_ticket-=1;
   }
   if(!p.shop)p.shop={daily:{},weekly:{},lifetime:{},monthly:{},luckyPets:null,luckyRefresh:0};
-  // 随机刷新3只SSR/SR宠物
+  // 随机刷新N只SSR/SR宠物
   const ssrPets=Object.values(PETS).filter(p=>p.rarity===5);
   const srPets=Object.values(PETS).filter(p=>p.rarity===4);
   const luckyPets=[];
-  for(let i=0;i<3;i++){
+  const maxSlots=SHOP_CONFIG.luckyShop.slots||9;
+  for(let i=0;i<maxSlots;i++){
    const isSSR=Math.random()<SHOP_CONFIG.luckyShop.ssrChance;
    const pool=isSSR?ssrPets:srPets;
    const pet=pool[Math.floor(Math.random()*pool.length)];
