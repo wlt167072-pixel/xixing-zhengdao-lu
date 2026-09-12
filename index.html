@@ -1762,14 +1762,14 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
     </div>
   </div>
   <div class="battle-field">
-    <div class="battle-side enemy-side">
-      <div class="side-tag side-tag-enemy">敌方</div>
-      <div class="battle-grid" id="enemy-grid"></div>
+    <div class="battle-side player-side">
+      <div class="side-tag side-tag-player">我方</div>
+      <div class="battle-grid" id="player-grid"></div>
     </div>
     <div class="battle-midline"><span></span></div>
-    <div class="battle-side player-side">
-      <div class="battle-grid" id="player-grid"></div>
-      <div class="side-tag side-tag-player">我方</div>
+    <div class="battle-side enemy-side">
+      <div class="battle-grid" id="enemy-grid"></div>
+      <div class="side-tag side-tag-enemy">敌方</div>
     </div>
     <div class="battle-log" id="battle-log"></div>
     <div class="battle-action-bar" id="battle-action-bar"></div>
@@ -6460,7 +6460,7 @@ const Battle={
 
  init(stage,node,onDone,onAbort){
   this.stage=stage;this.node=node;this.onDone=onDone;this.onAbort=onAbort;
-  this.turn=1;this.speed=1;this.auto=false;this.paused=false;this.battleEnded=false;this.logs=[];this.timers=[];this.waitQueue=[];
+  this.turn=1;this.speed=1;this.auto=true;this.paused=false;this.battleEnded=false;this.logs=[];this.timers=[];this.waitQueue=[];
   this.units=[];this.playerUnits=[];this.enemyUnits=[];this.lastBlow=null;
   this.stats={dmgDealt:{},dmgTaken:{},heal:{},kills:{}};this.expBefore={};
   this.isBoss=node.type==='boss';
@@ -6489,9 +6489,8 @@ const Battle={
   this.stageLoop();
  },
  applyUnlockButtons(){
-  const lv=Game.player.level;
   const auto=$('btn-auto'),sp=$('btn-speed');
-  auto.textContent=lv>=20?'自动:关':'自动(20级)';auto.disabled=lv<20;
+  auto.textContent='自动:'+(this.auto?'开':'关');auto.disabled=false;
   sp.textContent='倍速 1x';
  },
  createUnit(petId,side,row,pos,customName){
@@ -6639,7 +6638,15 @@ const Battle={
 
  pickTarget(actor,skill){
   const enemies=this.aliveEnemiesOf(actor);const allies=this.alive(actor.side);
-  if(!skill)return enemies[0];
+  if(!skill)return this.pickFrontMost(enemies);
+  // 技能标签优先：攻击后排、纵贯一列、横扫一横
+  if(skill.tag==='attack_back'){
+    const back=enemies.filter(e=>e.row==='back');
+    return(back.length?back:enemies).slice().sort((a,b)=>a.hp-b.hp)[0];
+  }
+  if(skill.tag==='vertical_column'||skill.tag==='horizontal_row'){
+    return null; // AOE类，由doAction处理
+  }
   switch(skill.target){
    case 'self':return actor;
    case 'all_ally':return null;
@@ -6647,12 +6654,18 @@ const Battle={
    case 'back':{const back=enemies.filter(e=>e.row==='back');return(back.length?back:enemies).slice().sort((a,b)=>a.hp-b.hp)[0]}
    case 'aoe':return null;
    default:{
-    // 对位优先
-    const opp=enemies.filter(e=>e.formationPos===actor.formationPos);
-    const pool=opp.length?opp:enemies;
-    return pool.slice().sort((a,b)=>a.hp-b.hp)[0];
+    // 全局优先规则：优先攻击敌方当前存活的最前排单位
+    return this.pickFrontMost(enemies);
    }
   }
+ },
+ // 选择最前排单位：前排优先，同排按站位顺序
+ pickFrontMost(enemies){
+  if(!enemies.length)return null;
+  const front=enemies.filter(e=>e.row==='front');
+  const pool=front.length?front:enemies;
+  // 同排按站位pos从小到大（从上到下）
+  return pool.slice().sort((a,b)=>(a.pos||0)-(b.pos||0))[0];
  },
 
  // ---------- 执行动作
@@ -6675,7 +6688,18 @@ const Battle={
   if(skill.cleans){this.doCleanse(actor)}
   if(skill.heal){this.doHeal(actor,skill,target)}
   if(skill.power>0){
-   const targets=skill.target==='aoe'?this.aliveEnemiesOf(actor):[target];
+   let targets=[target];
+   if(skill.target==='aoe')targets=this.aliveEnemiesOf(actor);
+   // 纵贯一列：攻击目标同一竖列（同pos的前后排）所有敌人
+   else if(skill.tag==='vertical_column'&&target){
+     const col=target.pos;
+     targets=this.aliveEnemiesOf(actor).filter(e=>e.pos===col);
+   }
+   // 横扫一横：攻击目标同一横排（同row的所有pos）所有敌人
+   else if(skill.tag==='horizontal_row'&&target){
+     const row=target.row;
+     targets=this.aliveEnemiesOf(actor).filter(e=>e.row===row);
+   }
    targets.forEach(t=>{if(t&&t.alive)this.dealDamage(actor,t,skill)});
   }
   // self_hp_cost：自身损失10%生命
