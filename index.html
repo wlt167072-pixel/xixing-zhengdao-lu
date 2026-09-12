@@ -5660,7 +5660,9 @@ const Game={
   if(p.shop.lastDay!==today){p.shop.daily={};p.shop.lastDay=today}
   if(p.shop.lastWeek!==weekKey){p.shop.weekly={};p.shop.lastWeek=weekKey}
   if(p.shop.lastMonth!==monthKey){p.shop.monthly={};p.shop.lastMonth=monthKey}
-  if(!p.shop.luckyPets)this.refreshLuckyShop(true);
+  // 如果幸运商店宠物数量与配置不符，自动刷新
+  const expectedSlots=SHOP_CONFIG.luckyShop.slots||9;
+  if(!p.shop.luckyPets||p.shop.luckyPets.length!==expectedSlots)this.refreshLuckyShop(true);
  },
  getShopLimit(type,id){
   const p=this.player;if(!p.shop)return 0;
