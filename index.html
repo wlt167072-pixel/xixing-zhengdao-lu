@@ -1450,6 +1450,47 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .bag-detail-actions{display:flex;gap:8px;margin-top:auto}
 .bag-empty{text-align:center;padding:60px;color:var(--txt3);font-size:14px}
 .icon-bag{background:linear-gradient(135deg,#8b6914,#d4a843)}
+.icon-shop{background:linear-gradient(135deg,#8b4513,#d2691e)}
+
+/* ===== 商店系统 ===== */
+.shop-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:var(--bg-panel);border-bottom:2px solid var(--gold-dk)}
+.shop-title{font-size:20px;color:var(--gold-lt);font-weight:900;letter-spacing:4px}
+.shop-resources{display:flex;gap:20px;font-size:13px;color:var(--txt2)}
+.shop-resources b{color:var(--gold-lt);font-weight:900}
+.shop-tabs{display:flex;gap:0;padding:0 24px;background:var(--bg-dark);border-bottom:2px solid var(--gold-dk)}
+.shop-tab{padding:12px 32px;background:transparent;border:none;color:var(--txt3);font-size:14px;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s steps(2)}
+.shop-tab.active{color:var(--gold-lt);border-bottom-color:var(--gold);background:rgba(240,192,80,.1)}
+.shop-tab:hover{color:var(--gold)}
+.shop-content{padding:20px 24px;min-height:500px}
+.shop-section{margin-bottom:24px}
+.shop-section-title{font-size:15px;color:var(--gold);font-weight:900;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--gold-dk);display:flex;justify-content:space-between;align-items:center}
+.shop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.shop-item{background:var(--bg-dark);border:2px solid var(--gold-dk);padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative}
+.shop-item.rar5{border-color:var(--gold);box-shadow:0 0 8px rgba(232,144,32,.3)}
+.shop-item.rar4{border-color:#b050c8}
+.shop-item.rar3{border-color:#4a90c8}
+.shop-item-img{width:64px;height:64px;object-fit:contain}
+.shop-item-name{font-size:13px;color:var(--txt1);font-weight:900;text-align:center}
+.shop-item-meta{font-size:11px;color:var(--txt3);text-align:center}
+.shop-item-price{font-size:14px;color:var(--gold-lt);font-weight:900}
+.shop-item-limit{font-size:10px;color:var(--txt3)}
+.shop-item-btn{width:100%;padding:6px;background:var(--gold);color:#1a0f00;border:none;font-size:12px;font-weight:900;cursor:pointer;transition:all .1s steps(2)}
+.shop-item-btn:hover{background:var(--gold-lt)}
+.shop-item-btn:disabled{background:var(--gold-dk);color:var(--txt3);cursor:not-allowed;opacity:.6}
+.shop-item-btn.sold-out{background:#5a4030;color:var(--txt3)}
+.lucky-shop-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.lucky-shop-info{font-size:12px;color:var(--txt2)}
+.lucky-shop-refresh{padding:6px 16px;background:var(--gold);color:#1a0f00;border:none;font-size:12px;font-weight:900;cursor:pointer}
+.lucky-shop-refresh:disabled{background:var(--gold-dk);color:var(--txt3);cursor:not-allowed}
+.shop-package{background:var(--bg-dark);border:2px solid var(--gold-dk);padding:12px;display:flex;flex-direction:column;gap:8px}
+.shop-package-title{font-size:13px;color:var(--gold-lt);font-weight:900}
+.shop-package-content{font-size:11px;color:var(--txt2);line-height:1.6;flex:1}
+.shop-package-price{font-size:14px;color:var(--gold-lt);font-weight:900}
+.shop-package-limit{font-size:10px;color:var(--txt3)}
+.shop-package-btn{width:100%;padding:6px;background:var(--gold);color:#1a0f00;border:none;font-size:12px;font-weight:900;cursor:pointer}
+.shop-package-btn:hover{background:var(--gold-lt)}
+.shop-package-btn:disabled{background:var(--gold-dk);color:var(--txt3);cursor:not-allowed;opacity:.6}
+.shop-footer{margin-top:20px;padding:12px;background:rgba(0,0,0,.2);border:1px solid var(--gold-dk);font-size:11px;color:var(--txt3);text-align:center}
 
 /* ===== 加载动画 ===== */
 #loading-screen{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease}
@@ -1550,6 +1591,11 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
       <button class="dash-nav" onclick="Game.showGacha('pool1')">
         <span class="dash-nav-ic icon-gacha">召</span>
         <span class="dash-nav-tx"><b>御兽召唤</b><i>仙玉抽卡 · UP池</i></span>
+        <span class="dash-nav-go">&gt;</span>
+      </button>
+      <button class="dash-nav" onclick="Game.showView('shop')">
+        <span class="dash-nav-ic icon-shop">商</span>
+        <span class="dash-nav-tx"><b>仙玉商店</b><i>宠物 · 资源 · 礼包</i></span>
         <span class="dash-nav-go">&gt;</span>
       </button>
       <button class="dash-nav" onclick="Game.showView('secret')">
@@ -1768,6 +1814,22 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
   </div>
 </div>
 
+<div id="view-shop" class="view">
+  <div class="shop-header">
+    <div class="shop-title">仙玉商店</div>
+    <div class="shop-resources">
+      <span>仙玉 <b id="shop-xianyu">0</b></span>
+      <span>幸运卷 <b id="shop-lucky-ticket">0</b></span>
+    </div>
+    <button class="btn btn-small" onclick="Game.showView('menu')">返回</button>
+  </div>
+  <div class="shop-tabs">
+    <button class="shop-tab active" data-tab="pet" onclick="Game.switchShopTab('pet')">宠物商店</button>
+    <button class="shop-tab" data-tab="resource" onclick="Game.switchShopTab('resource')">资源商店</button>
+  </div>
+  <div class="shop-content" id="shop-content"></div>
+</div>
+
 <div id="view-team" class="view">
   <div class="team-header">
     <div class="team-title">阵容布阵 · 拖拽上阵（前3后3）</div>
@@ -1915,7 +1977,9 @@ const ITEMS={
  'lotus_petal':{name:'莲花瓣',desc:'莲花进化道具，可使御兽进化为莲花化身形态',type:'evolve',color:'#e080c0',quality:4},
  'ghost_orb':{name:'鬼力珠',desc:'鬼道进化道具，可使御兽进化为鬼王形态',type:'evolve',color:'#8040a0',quality:4},
  'bone_crown':{name:'白骨冠',desc:'白骨进化道具，可使御兽进化为白骨大仙形态',type:'evolve',color:'#e0e0d0',quality:4},
- 'bull_horn':{name:'蛮牛角',desc:'牛族进化道具，可使御兽进化为青牛妖王形态',type:'evolve',color:'#a06040',quality:4}
+ 'bull_horn':{name:'蛮牛角',desc:'牛族进化道具，可使御兽进化为青牛妖王形态',type:'evolve',color:'#a06040',quality:4},
+ 'evo_item':{name:'进化秘宝',desc:'宠物进化分支道具，可用于特殊进化',type:'evolve',color:'#c0a060',quality:4},
+ 'lucky_ticket':{name:'幸运卷',desc:'幸运商店刷新道具，消耗1张可刷新幸运商店宠物',type:'lucky',color:'#e0c040',quality:5}
 };
 // 变异系统配置
 const MUTATION={
@@ -2782,6 +2846,47 @@ function artifactSetsOf(eq){
 // ============================================================ 兑换码
 const REDEEM_CODES={
  'XYJ1986':{name:'仙玉大礼包',reward:{xianyu:200000},desc:'专属兑换码，可获得大量仙玉用于抽卡召唤。'}
+};
+
+// ============================================================ 商店系统
+const SHOP_CONFIG={
+ // 常驻宠物（6只，不轮换）
+ permanentPets:[
+  {id:'pet_186',name:'白虎灵尊',rarity:5,element:'金',price:3000,weeklyLimit:1},
+  {id:'pet_187',name:'朱雀灵尊',rarity:5,element:'火',price:3000,weeklyLimit:1},
+  {id:'pet_188',name:'玄武灵尊',rarity:5,element:'水',price:3000,weeklyLimit:1},
+  {id:'pet_066',name:'牛魔王',rarity:5,element:'土',price:3000,weeklyLimit:1},
+  {id:'pet_042',name:'红孩儿',rarity:4,element:'火',price:1500,weeklyLimit:2},
+  {id:'pet_067',name:'铁扇公主',rarity:4,element:'风',price:1500,weeklyLimit:2}
+ ],
+ // 幸运商店配置
+ luckyShop:{
+  slots:3,
+  ssrChance:0.2,
+  srChance:0.8,
+  ssrPrice:3500,
+  srPrice:1800,
+  refreshCost:{item:'lucky_ticket',count:1}
+ },
+ // 幸运卷
+ luckyTicket:{name:'幸运卷',price:5000,limit:null},
+ // 核心资源
+ resources:[
+  {id:'destiny_shard',name:'天命精魄',desc:'合成变异概率+5%/个',price:200,dailyLimit:20,weeklyLimit:100},
+  {id:'reforge_basic',name:'洗髓丹',desc:'重置宠物性格/资质',price:100,dailyLimit:30,weeklyLimit:150},
+  {id:'growth_fruit',name:'成长果',desc:'宠物经验+1000',price:50,dailyLimit:50,weeklyLimit:300},
+  {id:'stone',name:'觉醒石',desc:'奥义觉醒材料',price:150,dailyLimit:20,weeklyLimit:100},
+  {id:'evo_item',name:'进化秘宝',desc:'宠物进化分支道具',price:300,dailyLimit:10,weeklyLimit:50}
+ ],
+ // 特惠礼包
+ packages:[
+  {id:'newbie_pack',name:'新手启程礼包',content:'天命精魄×5+成长果×20+洗髓丹×10',items:{'destiny_shard':5,'growth_fruit':20,'reforge_basic':10},price:680,limitType:'lifetime',limitCount:1},
+  {id:'mutation_pack',name:'变异助力礼包',content:'天命精魄×10+觉醒石×5',items:{'destiny_shard':10,'stone':5},price:1500,limitType:'weekly',limitCount:1},
+  {id:'growth_pack',name:'养成加速礼包',content:'成长果×50+洗髓丹×20+进化秘宝×3',items:{'growth_fruit':50,'reforge_basic':20,'evo_item':3},price:1200,limitType:'weekly',limitCount:1},
+  {id:'stone_pack',name:'觉醒石礼包',content:'觉醒石×20',items:{'stone':20},price:2000,limitType:'weekly',limitCount:1},
+  {id:'monthly_card',name:'月度资源卡',content:'每天领天命精魄×2+成长果×5，持续30天',items:{'destiny_shard':60,'growth_fruit':150},price:1800,limitType:'monthly',limitCount:1},
+  {id:'lucky_pack',name:'幸运卷礼包',content:'幸运卷×3',items:{'lucky_ticket':3},price:12000,limitType:'weekly',limitCount:1}
+ ]
 };
 
 // ============================================================ 剧情
@@ -4113,7 +4218,7 @@ const Game={
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   $('view-'+v).classList.add('active');this.currentView=v;
   // 场景名大字显示
-  const vnMap={title:'西行证道录',menu:'长安',dex:'御兽图鉴',bag:'行囊',secret:'秘境副本',endless:'无尽试炼',achievement:'成就殿堂',gacha:'御兽召唤',battle:'战斗中',stages:'八十一难',explore:'西行途中',settings:'设置',team:'阵容布阵',fusion:'精魄合成'};
+  const vnMap={title:'西行证道录',menu:'长安',dex:'御兽图鉴',bag:'行囊',secret:'秘境副本',endless:'无尽试炼',achievement:'成就殿堂',gacha:'御兽召唤',battle:'战斗中',stages:'八十一难',explore:'西行途中',settings:'设置',team:'阵容布阵',fusion:'精魄合成',shop:'仙玉商店'};
   const vn=vnMap[v]||v;
   const old=document.querySelector('.view-transition-name');if(old)old.remove();
   const vnEl=document.createElement('div');vnEl.className='view-transition-name';vnEl.textContent=vn;document.body.appendChild(vnEl);
@@ -4124,6 +4229,7 @@ const Game={
   if(v==='fusion')this.renderFusion();if(v==='settings')this.renderSettings();
   if(v==='secret'){Secret.render();SFX.startBgm('secret')}
   if(v==='gacha'){this.renderGacha();SFX.startBgm('gacha')}
+  if(v==='shop'){this.showShop()}
   if(v==='battle'){SFX.startBgm('battle');if(typeof Guide!=='undefined')Guide.show('battle')}
   if(v==='dialog'&&typeof Guide!=='undefined')Guide.show('dialog');
   if(v==='title'){this.refreshTitle();SFX.startBgm('title')}
@@ -5541,6 +5647,205 @@ const Game={
    (statsHtml?'<div class="bag-detail-stats">'+statsHtml+'</div>':'')+
    '<div class="bag-detail-actions">'+actionsHtml+'</div>'+
    '</div>';
+ },
+ // ===== 商店系统
+ shopTab:'pet',
+ switchShopTab(tab){this.shopTab=tab;document.querySelectorAll('.shop-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));this.renderShop()},
+ showShop(){this.showView('shop');this.shopTab='pet';this.resetShopLimits();this.renderShop()},
+ resetShopLimits(){
+  const p=this.player;if(!p.shop)p.shop={daily:{},weekly:{},lifetime:{},monthly:{},luckyPets:null,luckyRefresh:0};
+  const today=new Date().toISOString().slice(0,10);
+  const weekStart=new Date();weekStart.setDate(weekStart.getDate()-weekStart.getDay());weekStart.setHours(0,0,0,0);
+  const weekKey=weekStart.toISOString().slice(0,10);
+  const monthKey=new Date().toISOString().slice(0,7);
+  if(p.shop.lastDay!==today){p.shop.daily={};p.shop.lastDay=today}
+  if(p.shop.lastWeek!==weekKey){p.shop.weekly={};p.shop.lastWeek=weekKey}
+  if(p.shop.lastMonth!==monthKey){p.shop.monthly={};p.shop.lastMonth=monthKey}
+  if(!p.shop.luckyPets)this.refreshLuckyShop(true);
+ },
+ getShopLimit(type,id){
+  const p=this.player;if(!p.shop)return 0;
+  if(type==='daily')return p.shop.daily[id]||0;
+  if(type==='weekly')return p.shop.weekly[id]||0;
+  if(type==='lifetime')return p.shop.lifetime[id]||0;
+  if(type==='monthly')return p.shop.monthly[id]||0;
+  return 0;
+ },
+ setShopLimit(type,id,count){
+  const p=this.player;if(!p.shop)p.shop={daily:{},weekly:{},lifetime:{},monthly:{},luckyPets:null,luckyRefresh:0};
+  if(type==='daily')p.shop.daily[id]=(p.shop.daily[id]||0)+count;
+  else if(type==='weekly')p.shop.weekly[id]=(p.shop.weekly[id]||0)+count;
+  else if(type==='lifetime')p.shop.lifetime[id]=(p.shop.lifetime[id]||0)+count;
+  else if(type==='monthly')p.shop.monthly[id]=(p.shop.monthly[id]||0)+count;
+ },
+ renderShop(){
+  const p=this.player;
+  $('shop-xianyu').textContent=p.xianyu||0;
+  $('shop-lucky-ticket').textContent=p.items.lucky_ticket||0;
+  const content=$('shop-content');
+  if(this.shopTab==='pet'){content.innerHTML=this.renderPetShop()}
+  else{content.innerHTML=this.renderResourceShop()}
+ },
+ renderPetShop(){
+  const p=this.player;
+  let html='<div class="shop-section"><div class="shop-section-title">常驻宠物（每周一0点重置限购）</div>';
+  html+='<div class="shop-grid">';
+  SHOP_CONFIG.permanentPets.forEach(pet=>{
+   const petData=PETS[pet.id];if(!petData)return;
+   const bought=this.getShopLimit('weekly',pet.id);
+   const remaining=pet.weeklyLimit-bought;
+   const canBuy=remaining>0&&(p.xianyu||0)>=pet.price;
+   html+='<div class="shop-item rar'+pet.rarity+'">'+
+    '<img src="'+petImg(pet.id,128)+'" class="shop-item-img" onerror="this.style.display=\'none\'">'+
+    '<div class="shop-item-name">'+petData.name+'</div>'+
+    '<div class="shop-item-meta">'+petData.element+'·'+petData.job+'</div>'+
+    '<div class="shop-item-price">'+pet.price+' 仙玉</div>'+
+    '<div class="shop-item-limit">每周限购'+pet.weeklyLimit+'只（剩余'+remaining+'）</div>'+
+    '<button class="shop-item-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyPet(\''+pet.id+'\','+pet.price+',\''+pet.weeklyLimit+'\')">'+(remaining>0?'购买':'已售罄')+'</button>'+
+    '</div>';
+  });
+  html+='</div></div>';
+  // 幸运商店
+  html+='<div class="shop-section"><div class="shop-section-title">幸运商店（随机刷新SSR/SR宠物）';
+  html+='<div class="lucky-shop-header"><span class="lucky-shop-info">幸运卷：'+(p.items.lucky_ticket||0)+'张（资源商店购买）</span>'+
+   '<button class="lucky-shop-refresh" '+(p.items.lucky_ticket>0?'':'disabled')+' onclick="Game.refreshLuckyShop()">刷新（消耗1张幸运卷）</button></div>';
+  html+='<div class="shop-grid">';
+  const luckyPets=p.shop.luckyPets||[];
+  luckyPets.forEach((pet,idx)=>{
+   const petData=PETS[pet.id];if(!petData)return;
+   const price=pet.rarity===5?SHOP_CONFIG.luckyShop.ssrPrice:SHOP_CONFIG.luckyShop.srPrice;
+   const canBuy=(p.xianyu||0)>=price;
+   html+='<div class="shop-item rar'+pet.rarity+'">'+
+    '<img src="'+petImg(pet.id,128)+'" class="shop-item-img" onerror="this.style.display=\'none\'">'+
+    '<div class="shop-item-name">'+petData.name+'</div>'+
+    '<div class="shop-item-meta">'+petData.element+'·'+petData.job+'</div>'+
+    '<div class="shop-item-price">'+price+' 仙玉</div>'+
+    '<div class="shop-item-limit">幸运商店专属</div>'+
+    '<button class="shop-item-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyLuckyPet('+idx+','+price+')">购买</button>'+
+    '</div>';
+  });
+  html+='</div></div>';
+  html+='<div class="shop-footer">每周一0点重置常驻宠物限购 · 商店购买宠物不能变异 · 青龙灵尊仅在抽卡池获得</div>';
+  return html;
+ },
+ renderResourceShop(){
+  const p=this.player;
+  let html='<div class="shop-section"><div class="shop-section-title">核心资源（每日/每周限购）</div>';
+  html+='<div class="shop-grid">';
+  SHOP_CONFIG.resources.forEach(res=>{
+   const dailyBought=this.getShopLimit('daily',res.id);
+   const weeklyBought=this.getShopLimit('weekly',res.id);
+   const remaining=Math.min(res.dailyLimit-dailyBought,res.weeklyLimit-weeklyBought);
+   const canBuy=remaining>0&&(p.xianyu||0)>=res.price;
+   html+='<div class="shop-item">'+
+    '<img src="'+itemImg(res.id)+'" class="shop-item-img" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div style="display:none;width:64px;height:64px;align-items:center;justify-content:center;font-size:24px;color:var(--gold);">'+res.name.charAt(0)+'</div>'+
+    '<div class="shop-item-name">'+res.name+'</div>'+
+    '<div class="shop-item-meta">'+res.desc+'</div>'+
+    '<div class="shop-item-price">'+res.price+' 仙玉</div>'+
+    '<div class="shop-item-limit">每日'+res.dailyLimit+'/每周'+res.weeklyLimit+'（剩余'+remaining+'）</div>'+
+    '<button class="shop-item-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyResource(\''+res.id+'\','+res.price+','+res.dailyLimit+','+res.weeklyLimit+')">'+(remaining>0?'购买':'已售罄')+'</button>'+
+    '</div>';
+  });
+  html+='</div></div>';
+  // 特惠礼包
+  html+='<div class="shop-section"><div class="shop-section-title">特惠礼包（高性价比，限购）</div>';
+  html+='<div class="shop-grid">';
+  SHOP_CONFIG.packages.forEach(pkg=>{
+   const bought=this.getShopLimit(pkg.limitType,pkg.id);
+   const remaining=pkg.limitCount-bought;
+   const canBuy=remaining>0&&(p.xianyu||0)>=pkg.price;
+   const limitText=pkg.limitType==='lifetime'?'终身限购':pkg.limitType==='weekly'?'每周限购':pkg.limitType==='monthly'?'每月限购':'限购';
+   html+='<div class="shop-package">'+
+    '<div class="shop-package-title">'+pkg.name+'</div>'+
+    '<div class="shop-package-content">'+pkg.content+'</div>'+
+    '<div class="shop-package-price">'+pkg.price+' 仙玉</div>'+
+    '<div class="shop-package-limit">'+limitText+pkg.limitCount+'次（剩余'+remaining+'）</div>'+
+    '<button class="shop-package-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyPackage(\''+pkg.id+'\','+pkg.price+',\''+pkg.limitType+'\','+pkg.limitCount+')">'+(remaining>0?'购买':'已售罄')+'</button>'+
+    '</div>';
+  });
+  html+='</div></div>';
+  html+='<div class="shop-footer">每日0点重置每日限购 · 每周一0点重置每周限购 · 每月1日重置每月限购</div>';
+  return html;
+ },
+ buyPet(id,price,weeklyLimit){
+  const p=this.player;
+  if((p.xianyu||0)<price){this.tip('仙玉不足');return}
+  const bought=this.getShopLimit('weekly',id);
+  if(bought>=weeklyLimit){this.tip('本周已达限购上限');return}
+  p.xianyu-=price;
+  this.setShopLimit('weekly',id,1);
+  if(!p.ownedPets.includes(id)){p.ownedPets.push(id);p.petState[id]={level:1,exp:0,stars:1,breakthrough:0,quality:'普通',nature:'普通',mutated:false}}
+  else{this.tip('已拥有该宠物，转化为50精魄');p.shards[id]=(p.shards[id]||0)+50}
+  SaveSystem.save();this.renderShop();this.checkAchievements();
+  this.tip('购买成功：'+PETS[id].name);
+ },
+ buyLuckyPet(idx,price){
+  const p=this.player;
+  if((p.xianyu||0)<price){this.tip('仙玉不足');return}
+  const luckyPets=p.shop.luckyPets||[];
+  const pet=luckyPets[idx];if(!pet){this.tip('宠物已被购买');return}
+  p.xianyu-=price;
+  if(!p.ownedPets.includes(pet.id)){p.ownedPets.push(pet.id);p.petState[pet.id]={level:1,exp:0,stars:1,breakthrough:0,quality:'普通',nature:'普通',mutated:false}}
+  else{this.tip('已拥有该宠物，转化为50精魄');p.shards[pet.id]=(p.shards[pet.id]||0)+50}
+  luckyPets.splice(idx,1);
+  SaveSystem.save();this.renderShop();this.checkAchievements();
+  this.tip('购买成功：'+PETS[pet.id].name);
+ },
+ buyResource(id,price,dailyLimit,weeklyLimit){
+  const p=this.player;
+  if((p.xianyu||0)<price){this.tip('仙玉不足');return}
+  const dailyBought=this.getShopLimit('daily',id);
+  const weeklyBought=this.getShopLimit('weekly',id);
+  if(dailyBought>=dailyLimit){this.tip('今日已达限购上限');return}
+  if(weeklyBought>=weeklyLimit){this.tip('本周已达限购上限');return}
+  p.xianyu-=price;
+  this.setShopLimit('daily',id,1);
+  this.setShopLimit('weekly',id,1);
+  if(id==='stone'){p.stone=(p.stone||0)+1}
+  else{p.items[id]=(p.items[id]||0)+1}
+  SaveSystem.save();this.renderShop();
+  this.tip('购买成功：'+ITEMS[id]?.name||id);
+ },
+ buyPackage(id,price,limitType,limitCount){
+  const p=this.player;
+  if((p.xianyu||0)<price){this.tip('仙玉不足');return}
+  const bought=this.getShopLimit(limitType,id);
+  if(bought>=limitCount){this.tip('已达限购上限');return}
+  p.xianyu-=price;
+  this.setShopLimit(limitType,id,1);
+  const pkg=SHOP_CONFIG.packages.find(x=>x.id===id);
+  if(pkg&&pkg.items){
+   Object.entries(pkg.items).forEach(([itemId,count])=>{
+    if(itemId==='stone'){p.stone=(p.stone||0)+count}
+    else{p.items[itemId]=(p.items[itemId]||0)+count}
+   });
+  }
+  SaveSystem.save();this.renderShop();
+  this.tip('购买成功：'+pkg?.name||id);
+ },
+ refreshLuckyShop(free){
+  const p=this.player;
+  if(!free){
+   if((p.items.lucky_ticket||0)<=0){this.tip('幸运卷不足，可在资源商店购买');return}
+   p.items.lucky_ticket-=1;
+  }
+  if(!p.shop)p.shop={daily:{},weekly:{},lifetime:{},monthly:{},luckyPets:null,luckyRefresh:0};
+  // 随机刷新3只SSR/SR宠物
+  const ssrPets=Object.values(PETS).filter(p=>p.rarity===5);
+  const srPets=Object.values(PETS).filter(p=>p.rarity===4);
+  const luckyPets=[];
+  for(let i=0;i<3;i++){
+   const isSSR=Math.random()<SHOP_CONFIG.luckyShop.ssrChance;
+   const pool=isSSR?ssrPets:srPets;
+   const pet=pool[Math.floor(Math.random()*pool.length)];
+   if(pet&&!luckyPets.find(x=>x.id===pet.id))luckyPets.push({id:pet.id,rarity:pet.rarity});
+   else{i--}
+  }
+  p.shop.luckyPets=luckyPets;
+  p.shop.luckyRefresh=(p.shop.luckyRefresh||0)+1;
+  SaveSystem.save();
+  if(this.currentView==='shop')this.renderShop();
+  if(!free)this.tip('幸运商店已刷新');
  },
  findArtEquipped(aid){
   for(const [pid,eq] of Object.entries(this.player.equipped||{})){
