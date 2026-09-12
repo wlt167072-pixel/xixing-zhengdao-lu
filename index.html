@@ -313,11 +313,11 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .gacha-rates-title{font-size:13px;color:var(--gold);font-weight:900;margin-bottom:8px}
 .gacha-rate-row{display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);padding:3px 0}
 .gacha-rate-note{font-size:11px;color:var(--txt3);margin-top:8px;line-height:1.6}
-.gacha-pool-content{margin-top:16px}
+.gacha-pool-content{margin-top:16px;max-width:900px;margin-left:auto;margin-right:auto;padding:0 20px}
 .gacha-pool-section{margin-bottom:16px}
 .gacha-section-title{font-size:14px;color:var(--gold);font-weight:900;margin-bottom:8px;border-bottom:1px solid var(--gold-dk);padding-bottom:4px}
-.gacha-pet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
-.gacha-pet-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;background:rgba(0,0,0,.2);border:1px solid var(--gold-dk);font-size:11px;color:var(--txt2)}
+.gacha-pet-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.gacha-pet-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;background:rgba(0,0,0,.2);border:1px solid var(--gold-dk);font-size:11px;color:var(--txt2);min-width:0}
 .gacha-pet-item.up{border-color:var(--gold);background:rgba(240,192,80,.1)}
 .gacha-pet-item span{text-align:center}
 /* 抽卡结果弹窗 */
@@ -1668,9 +1668,7 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
     </div>
   </div>
   <div class="bag-tabs" id="bag-tabs">
-    <div class="bag-tab active" data-tab="pet" onclick="Game.switchBagTab('pet')"><span class="bag-tab-icon icon-pet"></span>宠物</div>
-    <div class="bag-tab" data-tab="shard" onclick="Game.switchBagTab('shard')"><span class="bag-tab-icon icon-shard"></span>精魄</div>
-    <div class="bag-tab" data-tab="item" onclick="Game.switchBagTab('item')"><span class="bag-tab-icon icon-item"></span>道具</div>
+    <div class="bag-tab active" data-tab="item" onclick="Game.switchBagTab('item')"><span class="bag-tab-icon icon-item"></span>道具</div>
     <div class="bag-tab" data-tab="artifact" onclick="Game.switchBagTab('artifact')"><span class="bag-tab-icon icon-art"></span>法宝</div>
     <div class="bag-tab" data-tab="material" onclick="Game.switchBagTab('material')"><span class="bag-tab-icon icon-mat"></span>材料</div>
   </div>
@@ -5287,9 +5285,9 @@ const Game={
  closeGachaResult(){const el=document.getElementById('gacha-result-overlay');if(el)el.remove();this.renderGacha()},
  addXianyu(amount){this.player.xianyu=(this.player.xianyu||0)+amount;SaveSystem.save();this.tip('获得仙玉 +'+amount)},
  // ===== 背包系统
- bagTab:'pet',
+ bagTab:'item',
  bagSelected:null,
- showBag(){this.showView('bag');this.bagTab='pet';this.bagSelected=null;this.renderBag()},
+ showBag(){this.showView('bag');this.bagTab='item';this.bagSelected=null;this.renderBag()},
  viewPetFromBag(id){this.showView('dex');this.selectDexPet(id)},
  fuseFromBag(id){this.fuse(id,0)},
  useItemFromBag(id){this.useItem(id)},
