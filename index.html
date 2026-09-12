@@ -2875,8 +2875,7 @@ const SHOP_CONFIG={
   {id:'destiny_shard',name:'天命精魄',desc:'合成变异概率+5%/个',price:200,dailyLimit:20,weeklyLimit:100},
   {id:'reforge_basic',name:'洗髓丹',desc:'重置宠物性格/资质',price:100,dailyLimit:30,weeklyLimit:150},
   {id:'growth_fruit',name:'成长果',desc:'宠物经验+1000',price:50,dailyLimit:50,weeklyLimit:300},
-  {id:'stone',name:'觉醒石',desc:'奥义觉醒材料',price:150,dailyLimit:20,weeklyLimit:100},
-  {id:'evo_item',name:'进化秘宝',desc:'宠物进化分支道具',price:300,dailyLimit:10,weeklyLimit:50}
+  {id:'stone',name:'觉醒石',desc:'奥义觉醒材料',price:150,dailyLimit:20,weeklyLimit:100}
  ],
  // 特惠礼包
  packages:[
@@ -5706,7 +5705,7 @@ const Game={
   });
   html+='</div></div>';
   // 幸运商店
-  html+='<div class="shop-section"><div class="shop-section-title">幸运商店（随机刷新SSR/SR宠物）';
+  html+='<div class="shop-section"><div class="shop-section-title">幸运商店（随机刷新SSR/SR宠物）</div>';
   html+='<div class="lucky-shop-header"><span class="lucky-shop-info">幸运卷：'+(p.items.lucky_ticket||0)+'张（资源商店购买）</span>'+
    '<button class="lucky-shop-refresh" '+(p.items.lucky_ticket>0?'':'disabled')+' onclick="Game.refreshLuckyShop()">刷新（消耗1张幸运卷）</button></div>';
   html+='<div class="shop-grid">';
@@ -6304,6 +6303,7 @@ function petImg(id,size,mutant){
 }
 // 道具图标路径
 function itemImg(itemId){
+  if(itemId==='stone')return '道具图标/stone_觉醒石.png';
   const item=ITEMS[itemId];
   if(!item)return '';
   return '道具图标/'+itemId+'_'+item.name+'.png';
