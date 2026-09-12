@@ -4799,7 +4799,7 @@ const Game={
  // ===== 道具系统 =====
  giveItem(itemId,count){if(!ITEMS[itemId])return;if(!this.player.items)this.player.items={};this.player.items[itemId]=(this.player.items[itemId]||0)+(count||1);SaveSystem.save()},
  hasItem(itemId,count){return (this.player.items&&this.player.items[itemId]||0)>=(count||1)},
- consumeItem(itemId,count){if(!this.hasItem(itemId,count))return false;this.player.items[itemId]-=count;if(this.player.items[itemId]<=0)delete this.player.items[itemId];SaveSystem.save();return true},
+ consumeItem(itemId,count){count=count||1;if(!this.hasItem(itemId,count))return false;this.player.items[itemId]-=count;if(this.player.items[itemId]<=0)delete this.player.items[itemId];SaveSystem.save();return true},
  useExpItem(id,itemId){
   const item=ITEMS[itemId];if(!item||item.type!=='exp'){this.tip('道具类型错误');return}
   if(!this.hasItem(itemId)){this.tip('道具不足');return}
