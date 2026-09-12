@@ -5079,9 +5079,9 @@ const Game={
   const count=p.gacha.count||0;const pityKey=this.gachaPool+'_up_pity';const upPity=p.gacha[pityKey]||false;const firstKey='first_'+this.gachaPool;const firstDone=p.gacha[firstKey]||false;
   const upPet=PETS[pool.upPet];
   const allPoolPets=[...pool.ssr,...pool.sr,...pool.r].map(id=>PETS[id]).filter(Boolean);
-  const ssrList=allPoolPets.filter(p=>p.rarity>=4);
-  const srList=allPoolPets.filter(p=>p.rarity===3);
-  const rList=allPoolPets.filter(p=>p.rarity<=2);
+  const ssrList=allPoolPets.filter(p=>p.rarity===5);
+  const srList=allPoolPets.filter(p=>p.rarity===4);
+  const rList=allPoolPets.filter(p=>p.rarity===3);
   let html='<div class="gacha-header">'+
    '<div class="gacha-pool-title">'+pool.name+'</div>'+
    '<div class="gacha-up-display">'+pixelChar(upPet,80)+'<div class="gacha-up-info"><div class="gacha-up-tag">UP</div><div class="gacha-up-name">'+upPet.name+'</div><div class="gacha-up-rarity">SSR · '+upPet.element+' · '+upPet.job+'</div></div></div>'+
