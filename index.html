@@ -1470,6 +1470,8 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .shop-item.rar5{border-color:var(--gold);box-shadow:0 0 8px rgba(232,144,32,.3)}
 .shop-item.rar4{border-color:#b050c8}
 .shop-item.rar3{border-color:#4a90c8}
+.shop-item.mutant-item{border:2px solid transparent;background:linear-gradient(var(--bg-dark),var(--bg-dark)) padding-box,linear-gradient(135deg,#ff60c0,#c060ff,#60c0ff,#60ffc0,#ffc060) border-box;box-shadow:0 0 12px rgba(255,96,192,.4)}
+.mutant-badge{position:absolute;top:4px;right:4px;background:linear-gradient(135deg,#ff60c0,#c060ff);color:#fff;font-size:10px;font-weight:900;padding:2px 6px;letter-spacing:1px;z-index:2}
 .shop-item-img{width:64px;height:64px;object-fit:contain}
 .shop-item-name{font-size:13px;color:var(--txt1);font-weight:900;text-align:center}
 .shop-item-meta{font-size:11px;color:var(--txt3);text-align:center}
@@ -5714,19 +5716,23 @@ const Game={
   const luckyPets=p.shop.luckyPets||[];
   luckyPets.forEach((pet,idx)=>{
    const petData=PETS[pet.id];if(!petData)return;
-   const price=pet.rarity===5?SHOP_CONFIG.luckyShop.ssrPrice:SHOP_CONFIG.luckyShop.srPrice;
+   const basePrice=pet.rarity===5?SHOP_CONFIG.luckyShop.ssrPrice:SHOP_CONFIG.luckyShop.srPrice;
+   const price=pet.mutant?basePrice*5:basePrice;
    const canBuy=(p.xianyu||0)>=price;
-   html+='<div class="shop-item rar'+pet.rarity+'">'+
+   const mutantTag=pet.mutant?'<div class="mutant-badge">变异</div>':'';
+   const displayName=pet.mutant?'异·'+petData.name:petData.name;
+   html+='<div class="shop-item rar'+pet.rarity+(pet.mutant?' mutant-item':'')+'">'+
+    mutantTag+
     '<img src="'+petImg(pet.id,128)+'" class="shop-item-img" onerror="this.style.display=\'none\'">'+
-    '<div class="shop-item-name">'+petData.name+'</div>'+
+    '<div class="shop-item-name">'+displayName+'</div>'+
     '<div class="shop-item-meta">'+petData.element+'·'+petData.job+'</div>'+
-    '<div class="shop-item-price">'+price+' 仙玉</div>'+
-    '<div class="shop-item-limit">幸运商店专属</div>'+
+    '<div class="shop-item-price" '+(pet.mutant?'style="color:#ff60c0"':'')+'>'+price+' 仙玉</div>'+
+    '<div class="shop-item-limit">'+(pet.mutant?'变异专属·全属性+10%':'幸运商店专属')+'</div>'+
     '<button class="shop-item-btn" '+(canBuy?'':'disabled')+' onclick="Game.buyLuckyPet('+idx+','+price+')">购买</button>'+
     '</div>';
   });
   html+='</div></div>';
-  html+='<div class="shop-footer">每周一0点重置常驻宠物限购 · 商店购买宠物不能变异 · 青龙灵尊仅在抽卡池获得</div>';
+  html+='<div class="shop-footer">每周一0点重置常驻宠物限购 · 幸运商店有概率刷出变异宠（5倍价格·全属性+10%） · 青龙灵尊仅在抽卡池获得</div>';
   return html;
  },
  renderResourceShop(){
@@ -5786,11 +5792,11 @@ const Game={
   const luckyPets=p.shop.luckyPets||[];
   const pet=luckyPets[idx];if(!pet){this.tip('宠物已被购买');return}
   p.xianyu-=price;
-  if(!p.ownedPets.includes(pet.id)){p.ownedPets.push(pet.id);p.petState[pet.id]={level:1,exp:0,stars:1,breakthrough:0,quality:'普通',nature:'普通',mutated:false}}
+  if(!p.ownedPets.includes(pet.id)){p.ownedPets.push(pet.id);p.petState[pet.id]={level:1,exp:0,stars:1,breakthrough:0,quality:'普通',nature:'普通',mutated:pet.mutant?true:false}}
   else{this.tip('已拥有该宠物，转化为50精魄');p.shards[pet.id]=(p.shards[pet.id]||0)+50}
   luckyPets.splice(idx,1);
   SaveSystem.save();this.renderShop();this.checkAchievements();
-  this.tip('购买成功：'+PETS[pet.id].name);
+  this.tip('购买成功：'+(pet.mutant?'异·':'')+PETS[pet.id].name+(pet.mutant?'（变异·全属性+10%）':''));
  },
  buyResource(id,price,dailyLimit,weeklyLimit){
   const p=this.player;
@@ -5831,17 +5837,24 @@ const Game={
    p.items.lucky_ticket-=1;
   }
   if(!p.shop)p.shop={daily:{},weekly:{},lifetime:{},monthly:{},luckyPets:null,luckyRefresh:0};
-  // 随机刷新N只SSR/SR宠物
-  const ssrPets=Object.values(PETS).filter(p=>p.rarity===5);
-  const srPets=Object.values(PETS).filter(p=>p.rarity===4);
+  // 随机刷新N只SSR/SR宠物，有概率刷出变异版
+  const ssrPets=Object.values(PETS).filter(p=>p.rarity===5&&!p.id.endsWith('_m'));
+  const srPets=Object.values(PETS).filter(p=>p.rarity===4&&!p.id.endsWith('_m'));
   const luckyPets=[];
   const maxSlots=SHOP_CONFIG.luckyShop.slots||9;
+  const mutantChance=0.15; // 15%概率刷出变异版
   for(let i=0;i<maxSlots;i++){
    const isSSR=Math.random()<SHOP_CONFIG.luckyShop.ssrChance;
    const pool=isSSR?ssrPets:srPets;
    const pet=pool[Math.floor(Math.random()*pool.length)];
-   if(pet&&!luckyPets.find(x=>x.id===pet.id))luckyPets.push({id:pet.id,rarity:pet.rarity});
-   else{i--}
+   if(!pet)continue;
+   // 检查是否有变异版，且随机命中变异概率
+   const hasMutant=MUTABLE_PETS[pet.id]&&PETS[pet.id+'_m'];
+   const isMutant=hasMutant&&Math.random()<mutantChance;
+   const petId=isMutant?pet.id+'_m':pet.id;
+   if(!luckyPets.find(x=>x.id===petId)){
+    luckyPets.push({id:petId,rarity:pet.rarity,mutant:isMutant});
+   }else{i--}
   }
   p.shop.luckyPets=luckyPets;
   p.shop.luckyRefresh=(p.shop.luckyRefresh||0)+1;
