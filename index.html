@@ -1722,7 +1722,6 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
     <div class="bag-resources">
       <span>金币 <b id="bag-gold">0</b></span>
       <span>觉醒石 <b id="bag-stone">0</b></span>
-      <span>天命精魄 <b id="bag-destiny">0</b></span>
     </div>
   </div>
   <div class="bag-tabs" id="bag-tabs">
@@ -1980,7 +1979,6 @@ const ITEMS={
  'growth_fruit':{name:'成长果',desc:'御兽永久+1%随机属性（每只最多5次）',type:'growth',color:'#80d0a0',quality:3},
  'art_frag':{name:'法宝碎片',desc:'10枚可打造一件随机法宝，也可用于法宝强化',type:'artfrag',color:'#a090c0',quality:2},
  'stamina_potion':{name:'体力药水',desc:'恢复30点体力',type:'stamina',value:30,color:'#60c8d8',quality:1},
- 'destiny_shard':{name:'天命精魄',desc:'精魄合成时使用可提升变异概率（每个+5%，最多3个），变异御兽全属性+10%',type:'destiny',color:'#e0c040',quality:5},
  'dragon_pearl':{name:'龙珠',desc:'龙族进化道具，可使龙类御兽进化为八部天龙',type:'evolve',color:'#40a0e0',quality:4},
  'jade_scale':{name:'玉鳞',desc:'玉龙进化道具，可使龙类御兽进化为玉龙三太子',type:'evolve',color:'#80e0c0',quality:4},
  'buddha_relic':{name:'佛门舍利',desc:'佛门进化道具，可使御兽进化为佛门形态',type:'evolve',color:'#e0c040',quality:4},
@@ -1995,8 +1993,6 @@ const ITEMS={
 // 变异系统配置
 const MUTATION={
  baseChance:0.03,        // 基础变异概率3%（SSR级）
- destinyBonus:0.05,      // 每个天命精魄+5%
- maxDestiny:3,           // 最多使用3个
  pityCount:20,           // 保底：连续20次未变异，第21次必出
  statBonus:0.10,         // 变异全属性+10%
  rarityRate:{5:0.03,4:0.02,3:0.01,2:0,1:0}, // 按稀有度：SSR3%/SR2%/R1%/N0%
@@ -2229,14 +2225,14 @@ function getEvolutionBranches(petId){return EVOLUTION_BRANCHES[petId]||null}
 const ACHIEVEMENTS={
  // ===== 收集类（20个）
  C01:{id:'C01',name:'初入妖途',desc:'收集第1只御兽',icon:'收',type:'collect',target:1,reward:{gold:100,exp:500},points:10,check:p=>p.ownedPets.length>=1},
- C02:{id:'C02',name:'小有所成',desc:'收集50只御兽',icon:'收',type:'collect',target:50,reward:{destiny_shard:2},points:20,check:p=>p.ownedPets.length>=50},
- C03:{id:'C03',name:'图鉴达人',desc:'收集100只御兽',icon:'收',type:'collect',target:100,reward:{destiny_shard:3},points:30,check:p=>p.ownedPets.length>=100},
- C04:{id:'C04',name:'收集大师',desc:'收集150只御兽',icon:'收',type:'collect',target:150,reward:{destiny_shard:5},points:50,check:p=>p.ownedPets.length>=150},
- C05:{id:'C05',name:'万灵归一',desc:'收集全部200只御兽',icon:'收',type:'collect',target:200,reward:{destiny_shard:10},points:100,check:p=>p.ownedPets.length>=200},
+ C02:{id:'C02',name:'小有所成',desc:'收集50只御兽',icon:'收',type:'collect',target:50,reward:{stone:20},points:20,check:p=>p.ownedPets.length>=50},
+ C03:{id:'C03',name:'图鉴达人',desc:'收集100只御兽',icon:'收',type:'collect',target:100,reward:{stone:30},points:30,check:p=>p.ownedPets.length>=100},
+ C04:{id:'C04',name:'收集大师',desc:'收集150只御兽',icon:'收',type:'collect',target:150,reward:{stone:50},points:50,check:p=>p.ownedPets.length>=150},
+ C05:{id:'C05',name:'万灵归一',desc:'收集全部200只御兽',icon:'收',type:'collect',target:200,reward:{stone:100},points:100,check:p=>p.ownedPets.length>=200},
  C06:{id:'C06',name:'五行俱全',desc:'收集每种五行各10只',icon:'五',type:'collect',target:50,reward:{gold:500,exp:2000},points:20,check:p=>{const cnt={};p.ownedPets.forEach(id=>{const pet=PETS[id];if(pet)cnt[pet.element]=(cnt[pet.element]||0)+1});return ['金','木','水','火','土'].every(e=>(cnt[e]||0)>=10)}},
  C07:{id:'C07',name:'金甲满堂',desc:'收集全部10只SSR级御兽',icon:'金',type:'collect',target:10,reward:{gold:2000},points:80,check:p=>p.ownedPets.filter(id=>PETS[id]&&PETS[id].rarity===5).length>=10},
- C08:{id:'C08',name:'变异初现',desc:'获得第1只变异御兽',icon:'异',type:'collect',target:1,reward:{destiny_shard:2},points:30,check:p=>Object.values(p.petState||{}).some(s=>s.mutated)},
- C09:{id:'C09',name:'变异猎手',desc:'获得5只变异御兽',icon:'异',type:'collect',target:5,reward:{destiny_shard:5},points:50,check:p=>Object.values(p.petState||{}).filter(s=>s.mutated).length>=5},
+ C08:{id:'C08',name:'变异初现',desc:'获得第1只变异御兽',icon:'异',type:'collect',target:1,reward:{stone:20},points:30,check:p=>Object.values(p.petState||{}).some(s=>s.mutated)},
+ C09:{id:'C09',name:'变异猎手',desc:'获得5只变异御兽',icon:'异',type:'collect',target:5,reward:{stone:50},points:50,check:p=>Object.values(p.petState||{}).filter(s=>s.mutated).length>=5},
  C10:{id:'C10',name:'变异大师',desc:'获得10只变异御兽',icon:'异',type:'collect',target:10,reward:{gold:5000},points:80,check:p=>Object.values(p.petState||{}).filter(s=>s.mutated).length>=10},
  C11:{id:'C11',name:'妖族至尊',desc:'收集全部山野妖王阵营御兽',icon:'妖',type:'collect',target:50,reward:{gold:1000},points:40,check:p=>p.ownedPets.filter(id=>PETS[id]&&PETS[id].faction==='山野妖王').length>=50},
  C12:{id:'C12',name:'佛门护法',desc:'收集全部佛门护法阵营御兽',icon:'佛',type:'collect',target:18,reward:{gold:1000},points:40,check:p=>p.ownedPets.filter(id=>PETS[id]&&PETS[id].faction==='佛门护法').length>=18},
@@ -2250,58 +2246,58 @@ const ACHIEVEMENTS={
  C20:{id:'C20',name:'精细伶俐',desc:'同时拥有精细鬼和伶俐虫',icon:'精',type:'collect',target:2,reward:{gold:500},points:10,check:p=>p.ownedPets.includes('pet_022')&&p.ownedPets.includes('pet_023')},
  // ===== 战斗类（15个）
  B01:{id:'B01',name:'初战告捷',desc:'通关第1难',icon:'战',type:'battle',target:1,reward:{gold:100,exp:1000},points:10,check:p=>Object.keys(p.clearedStages||{}).length>=1},
- B02:{id:'B02',name:'西行半程',desc:'通关第40难',icon:'战',type:'battle',target:40,reward:{destiny_shard:3},points:30,check:p=>Object.keys(p.clearedStages||{}).length>=40},
- B03:{id:'B03',name:'西行圆满',desc:'通关全部81难',icon:'战',type:'battle',target:81,reward:{destiny_shard:5,stone:50},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
+ B02:{id:'B02',name:'西行半程',desc:'通关第40难',icon:'战',type:'battle',target:40,reward:{stone:30},points:30,check:p=>Object.keys(p.clearedStages||{}).length>=40},
+ B03:{id:'B03',name:'西行圆满',desc:'通关全部81难',icon:'战',type:'battle',target:81,reward:{stone:100},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
  B04:{id:'B04',name:'百战不殆',desc:'累计战斗胜利100场',icon:'战',type:'battle',target:100,reward:{gold:2000},points:20,check:p=>(p.battleWins||0)>=100},
  B05:{id:'B05',name:'千军辟易',desc:'累计战斗胜利500场',icon:'战',type:'battle',target:500,reward:{gold:10000},points:50,check:p=>(p.battleWins||0)>=500},
- B06:{id:'B06',name:'降妖伏魔',desc:'首次收服妖王',icon:'服',type:'battle',target:1,reward:{destiny_shard:1},points:30,check:p=>(p.capturedCount||0)>=1},
- B07:{id:'B07',name:'收服大师',desc:'收服10只妖王',icon:'服',type:'battle',target:10,reward:{destiny_shard:3},points:50,check:p=>(p.capturedCount||0)>=10},
+ B06:{id:'B06',name:'降妖伏魔',desc:'首次收服妖王',icon:'服',type:'battle',target:1,reward:{stone:10},points:30,check:p=>(p.capturedCount||0)>=1},
+ B07:{id:'B07',name:'收服大师',desc:'收服10只妖王',icon:'服',type:'battle',target:10,reward:{stone:30},points:50,check:p=>(p.capturedCount||0)>=10},
  B08:{id:'B08',name:'速通达人',desc:'5回合内击败任意BOSS',icon:'速',type:'battle',target:1,reward:{gold:1000},points:20,check:p=>(p.fastestBossKill||99)<=5},
  B09:{id:'B09',name:'暴击大师',desc:'单场战斗暴击10次',icon:'暴',type:'battle',target:10,reward:{gold:500},points:10,check:p=>(p.maxCritInBattle||0)>=10},
  B10:{id:'B10',name:'奥义连发',desc:'单场战斗释放5次奥义',icon:'奥',type:'battle',target:5,reward:{gold:500},points:10,check:p=>(p.maxUltInBattle||0)>=5},
  B11:{id:'B11',name:'绝境逢生',desc:'队伍只剩1只御兽时翻盘获胜',icon:'绝',type:'battle',target:1,reward:{gold:2000},points:40,check:p=>(p.comebackWins||0)>=1},
  B12:{id:'B12',name:'以弱胜强',desc:'用全N级御兽通关一个BOSS',icon:'弱',type:'battle',target:1,reward:{gold:3000},points:40,check:p=>(p.weakTeamBossKills||0)>=1},
  B13:{id:'B13',name:'秘境初探',desc:'通关第一个秘境',icon:'秘',type:'battle',target:1,reward:{gold:500,exp:2000},points:10,check:p=>Object.keys(p.clearedSecret||{}).length>=1},
- B14:{id:'B14',name:'秘境行者',desc:'通关全部6个秘境',icon:'秘',type:'battle',target:6,reward:{destiny_shard:3,stone:30},points:50,check:p=>Object.keys(p.clearedSecret||{}).length>=6},
- B15:{id:'B15',name:'三十波封神',desc:'任意秘境达到30波',icon:'秘',type:'battle',target:30,reward:{destiny_shard:2},points:40,check:p=>Object.values(p.secretBest||{}).some(w=>w>=30)},
+ B14:{id:'B14',name:'秘境行者',desc:'通关全部6个秘境',icon:'秘',type:'battle',target:6,reward:{stone:60},points:50,check:p=>Object.keys(p.clearedSecret||{}).length>=6},
+ B15:{id:'B15',name:'三十波封神',desc:'任意秘境达到30波',icon:'秘',type:'battle',target:30,reward:{stone:20},points:40,check:p=>Object.values(p.secretBest||{}).some(w=>w>=30)},
  // ===== 养成类（15个）
  T01:{id:'T01',name:'初窥门径',desc:'一只御兽达到10级',icon:'养',type:'cultivate',target:10,reward:{gold:100,exp:1500},points:10,check:p=>Object.values(p.petState||{}).some(s=>s.level>=10)},
  T02:{id:'T02',name:'小有所成',desc:'一只御兽达到30级',icon:'养',type:'cultivate',target:30,reward:{gold:500},points:20,check:p=>Object.values(p.petState||{}).some(s=>s.level>=30)},
  T03:{id:'T03',name:'登堂入室',desc:'一只御兽达到50级',icon:'养',type:'cultivate',target:50,reward:{gold:2000},points:30,check:p=>Object.values(p.petState||{}).some(s=>s.level>=50)},
- T04:{id:'T04',name:'满级大佬',desc:'一只御兽达到满级60级',icon:'养',type:'cultivate',target:60,reward:{destiny_shard:3},points:50,check:p=>Object.values(p.petState||{}).some(s=>s.level>=60)},
+ T04:{id:'T04',name:'满级大佬',desc:'一只御兽达到满级60级',icon:'养',type:'cultivate',target:60,reward:{stone:30},points:50,check:p=>Object.values(p.petState||{}).some(s=>s.level>=60)},
  T05:{id:'T05',name:'升星初体验',desc:'一只御兽升到2星',icon:'星',type:'cultivate',target:2,reward:{gold:100,exp:1000},points:10,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=2)},
  T06:{id:'T06',name:'三星闪耀',desc:'一只御兽升到3星',icon:'星',type:'cultivate',target:3,reward:{gold:500},points:20,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=3)},
- T07:{id:'T07',name:'五星圆满',desc:'一只御兽升到5星',icon:'星',type:'cultivate',target:5,reward:{destiny_shard:5,stone:20},points:80,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
- T08:{id:'T08',name:'觉醒之力',desc:'一只御兽奥义觉醒（5星）',icon:'觉',type:'cultivate',target:1,reward:{destiny_shard:3,stone:10},points:40,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
+ T07:{id:'T07',name:'五星圆满',desc:'一只御兽升到5星',icon:'星',type:'cultivate',target:5,reward:{stone:70},points:80,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
+ T08:{id:'T08',name:'觉醒之力',desc:'一只御兽奥义觉醒（5星）',icon:'觉',type:'cultivate',target:1,reward:{stone:40},points:40,check:p=>Object.values(p.petState||{}).some(s=>s.stars>=5)},
  T09:{id:'T09',name:'羁绊初结',desc:'激活第1组羁绊',icon:'绊',type:'cultivate',target:1,reward:{gold:100,exp:800},points:10,check:p=>{const team=[...(p.team?.front||[]),...(p.team?.back||[])].filter(Boolean);return calcBondsFull(team).length>=1}},
  T10:{id:'T10',name:'羁绊达人',desc:'激活10组羁绊',icon:'绊',type:'cultivate',target:10,reward:{gold:1000},points:30,check:p=>{const team=[...(p.team?.front||[]),...(p.team?.back||[])].filter(Boolean);return calcBondsFull(team).length>=10}},
  T11:{id:'T11',name:'法宝初装',desc:'装备第一件法宝',icon:'法',type:'cultivate',target:1,reward:{gold:100,exp:800},points:10,check:p=>Object.values(p.equipped||{}).some(e=>e&&(typeof e==='string'||Object.values(e).some(Boolean)))},
  T12:{id:'T12',name:'法宝收藏家',desc:'收集全部法宝',icon:'法',type:'cultivate',target:18,reward:{gold:3000},points:50,check:p=>(p.artifacts||[]).length>=18},
  T13:{id:'T13',name:'套装达人',desc:'激活任意一套法宝套装',icon:'套',type:'cultivate',target:1,reward:{gold:500},points:20,check:p=>{let hasSet=false;Object.values(p.equipped||{}).forEach(eq=>{if(eq&&typeof eq==='object'){const arts=Object.values(eq).filter(Boolean);if(arts.length>=2){Object.values(ARTIFACT_SETS).forEach(set=>{const cnt=set.parts.filter(p=>arts.includes(p)).length;if(cnt>=2)hasSet=true})}}});return hasSet}},
- T14:{id:'T14',name:'进化之路',desc:'完成第一次御兽进化',icon:'进',type:'cultivate',target:1,reward:{destiny_shard:2},points:30,check:p=>Object.values(p.petState||{}).some(s=>s.evolutionBranch)},
- T15:{id:'T15',name:'分支探索者',desc:'5只御兽完成进化',icon:'进',type:'cultivate',target:5,reward:{destiny_shard:3},points:50,check:p=>Object.values(p.petState||{}).filter(s=>s.evolutionBranch).length>=5},
+ T14:{id:'T14',name:'进化之路',desc:'完成第一次御兽进化',icon:'进',type:'cultivate',target:1,reward:{stone:20},points:30,check:p=>Object.values(p.petState||{}).some(s=>s.evolutionBranch)},
+ T15:{id:'T15',name:'分支探索者',desc:'5只御兽完成进化',icon:'进',type:'cultivate',target:5,reward:{stone:30},points:50,check:p=>Object.values(p.petState||{}).filter(s=>s.evolutionBranch).length>=5},
  // ===== 探索类（10个）
  E01:{id:'E01',name:'秘境初探',desc:'通关第一个秘境',icon:'探',type:'explore',target:1,reward:{gold:500},points:10,check:p=>Object.keys(p.clearedSecret||{}).length>=1},
- E02:{id:'E02',name:'秘境行者',desc:'通关全部6个秘境',icon:'探',type:'explore',target:6,reward:{destiny_shard:3},points:50,check:p=>Object.keys(p.clearedSecret||{}).length>=6},
+ E02:{id:'E02',name:'秘境行者',desc:'通关全部6个秘境',icon:'探',type:'explore',target:6,reward:{stone:30},points:50,check:p=>Object.keys(p.clearedSecret||{}).length>=6},
  E03:{id:'E03',name:'十波不馁',desc:'秘境达到10波',icon:'探',type:'explore',target:10,reward:{gold:1000},points:20,check:p=>Object.values(p.secretBest||{}).some(w=>w>=10)},
  E04:{id:'E04',name:'二十波连斩',desc:'秘境达到20波',icon:'探',type:'explore',target:20,reward:{gold:3000},points:30,check:p=>Object.values(p.secretBest||{}).some(w=>w>=20)},
- E05:{id:'E05',name:'三十波封神',desc:'秘境达到30波',icon:'探',type:'explore',target:30,reward:{destiny_shard:2},points:40,check:p=>Object.values(p.secretBest||{}).some(w=>w>=30)},
+ E05:{id:'E05',name:'三十波封神',desc:'秘境达到30波',icon:'探',type:'explore',target:30,reward:{stone:20},points:40,check:p=>Object.values(p.secretBest||{}).some(w=>w>=30)},
  E06:{id:'E06',name:'西行启程',desc:'通关10难',icon:'探',type:'explore',target:10,reward:{gold:500,exp:3000},points:20,check:p=>Object.keys(p.clearedStages||{}).length>=10},
  E07:{id:'E07',name:'降妖除魔',desc:'通关20难',icon:'探',type:'explore',target:20,reward:{gold:1000},points:30,check:p=>Object.keys(p.clearedStages||{}).length>=20},
  E08:{id:'E08',name:'大道将成',desc:'通关60难',icon:'探',type:'explore',target:60,reward:{gold:5000,stone:30},points:50,check:p=>Object.keys(p.clearedStages||{}).length>=60},
  E09:{id:'E09',name:'解谜高手',desc:'解开所有五行机关谜题',icon:'谜',type:'explore',target:10,reward:{gold:1000},points:30,check:p=>(p.puzzlesSolved||0)>=10},
- E10:{id:'E10',name:'西天取经',desc:'到达灵山（通关第81难）',icon:'经',type:'explore',target:81,reward:{destiny_shard:5,stone:50},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
+ E10:{id:'E10',name:'西天取经',desc:'到达灵山（通关第81难）',icon:'经',type:'explore',target:81,reward:{stone:100},points:100,check:p=>Object.keys(p.clearedStages||{}).length>=81},
  // ===== 特殊类（10个）
  X01:{id:'X01',name:'初次合成',desc:'第一次合成御兽',icon:'合',type:'special',target:1,reward:{gold:100,exp:1000},points:10,check:p=>(p.totalFusions||0)>=1},
- X02:{id:'X02',name:'合成达人',desc:'合成100次',icon:'合',type:'special',target:100,reward:{destiny_shard:3},points:30,check:p=>(p.totalFusions||0)>=100},
+ X02:{id:'X02',name:'合成达人',desc:'合成100次',icon:'合',type:'special',target:100,reward:{stone:30},points:30,check:p=>(p.totalFusions||0)>=100},
  X03:{id:'X03',name:'合成大师',desc:'合成500次',icon:'合',type:'special',target:500,reward:{gold:5000},points:50,check:p=>(p.totalFusions||0)>=500},
  X04:{id:'X04',name:'百万富翁',desc:'累计获得100万金币',icon:'金',type:'special',target:1000000,reward:{gold:10000},points:30,check:p=>(p.totalGold||0)>=1000000},
  X05:{id:'X05',name:'富甲一方',desc:'累计获得1000万金币',icon:'金',type:'special',target:10000000,reward:{gold:50000},points:80,check:p=>(p.totalGold||0)>=10000000},
- X06:{id:'X06',name:'欧皇附体',desc:'一次合成就出变异',icon:'欧',type:'special',target:1,reward:{destiny_shard:5},points:50,check:p=>(p.firstTryMutations||0)>=1},
- X07:{id:'X07',name:'非酋逆袭',desc:'第20次保底出变异',icon:'非',type:'special',target:1,reward:{destiny_shard:3},points:30,check:p=>(p.pityMutations||0)>=1},
+ X06:{id:'X06',name:'欧皇附体',desc:'一次合成就出变异',icon:'欧',type:'special',target:1,reward:{stone:50},points:50,check:p=>(p.firstTryMutations||0)>=1},
+ X07:{id:'X07',name:'非酋逆袭',desc:'第20次保底出变异',icon:'非',type:'special',target:1,reward:{stone:30},points:30,check:p=>(p.pityMutations||0)>=1},
  X08:{id:'X08',name:'心有灵犀',desc:'激活首个被动共鸣',icon:'鸣',type:'special',target:1,reward:{gold:1000},points:20,check:p=>{const team=[...(p.team?.front||[]),...(p.team?.back||[])].filter(Boolean);return team.length>=2&&checkResonance(team).length>0}},
  X09:{id:'X09',name:'资质卓绝',desc:'洗炼出绝世资质',icon:'质',type:'special',target:1,reward:{gold:2000},points:40,check:p=>Object.values(p.petState||{}).some(s=>s.quality==='绝世')},
- X10:{id:'X10',name:'图鉴全通',desc:'收集全部200只御兽',icon:'全',type:'special',target:200,reward:{destiny_shard:10},points:100,check:p=>p.ownedPets.length>=200}
+ X10:{id:'X10',name:'图鉴全通',desc:'收集全部200只御兽',icon:'全',type:'special',target:200,reward:{stone:100},points:100,check:p=>p.ownedPets.length>=200}
 };
 const ACHIEVEMENT_TYPES={collect:'收集',stage:'通关',cultivate:'养成',evolve:'进化',mutant:'变异',secret:'秘境',battle:'战斗',economy:'经济',special:'特殊'};
 
@@ -2883,18 +2879,17 @@ const SHOP_CONFIG={
  luckyTicket:{name:'幸运卷',price:5000,limit:null},
  // 核心资源
  resources:[
-  {id:'destiny_shard',name:'天命精魄',desc:'合成变异概率+5%/个',price:200,dailyLimit:20,weeklyLimit:100},
   {id:'reforge_basic',name:'洗髓丹',desc:'重置宠物性格/资质',price:100,dailyLimit:30,weeklyLimit:150},
   {id:'growth_fruit',name:'成长果',desc:'宠物经验+1000',price:50,dailyLimit:50,weeklyLimit:300},
   {id:'stone',name:'觉醒石',desc:'奥义觉醒材料',price:150,dailyLimit:20,weeklyLimit:100}
  ],
  // 特惠礼包
  packages:[
-  {id:'newbie_pack',name:'新手启程礼包',content:'天命精魄×5+成长果×20+洗髓丹×10',items:{'destiny_shard':5,'growth_fruit':20,'reforge_basic':10},price:680,limitType:'lifetime',limitCount:1},
-  {id:'mutation_pack',name:'变异助力礼包',content:'天命精魄×10+觉醒石×5',items:{'destiny_shard':10,'stone':5},price:1500,limitType:'weekly',limitCount:1},
+  {id:'newbie_pack',name:'新手启程礼包',content:'成长果×20+洗髓丹×10+觉醒石×5',items:{'growth_fruit':20,'reforge_basic':10,'stone':5},price:680,limitType:'lifetime',limitCount:1},
+  {id:'mutation_pack',name:'养成助力礼包',content:'成长果×30+洗髓丹×15+觉醒石×10',items:{'growth_fruit':30,'reforge_basic':15,'stone':10},price:1500,limitType:'weekly',limitCount:1},
   {id:'growth_pack',name:'养成加速礼包',content:'成长果×50+洗髓丹×20+觉醒石×5',items:{'growth_fruit':50,'reforge_basic':20,'stone':5},price:1200,limitType:'weekly',limitCount:1},
   {id:'stone_pack',name:'觉醒石礼包',content:'觉醒石×20',items:{'stone':20},price:2000,limitType:'weekly',limitCount:1},
-  {id:'monthly_card',name:'月度资源卡',content:'每天领天命精魄×2+成长果×5，持续30天',items:{'destiny_shard':60,'growth_fruit':150},price:1800,limitType:'monthly',limitCount:1},
+  {id:'monthly_card',name:'月度资源卡',content:'每天领成长果×5+洗髓丹×2，持续30天',items:{'growth_fruit':150,'reforge_basic':60},price:1800,limitType:'monthly',limitCount:1},
   {id:'lucky_pack',name:'幸运卷礼包',content:'幸运卷×3',items:{'lucky_ticket':3},price:12000,limitType:'weekly',limitCount:1}
  ]
 };
@@ -5001,8 +4996,6 @@ const Game={
  fusionFilter:'all',
  renderFusion(){
   const p=this.player;const owned=new Set(p.ownedPets);
-  if(!this.fusionDestiny)this.fusionDestiny={};
-  const destinyHave=p.items.destiny_shard||0;
   const canNow=Object.values(PETS).filter(pet=>!owned.has(pet.id)&&(p.shards[pet.id]||0)>=RARITY[pet.rarity].shardNeed).length;
   const haveShards=Object.values(PETS).filter(pet=>(p.shards[pet.id]||0)>0);
   const filter=this.fusionFilter||'all';
@@ -5026,17 +5019,16 @@ const Game={
    '<button class="'+(filter==='haveshard'?'active':'')+'" onclick="Game.setFusionFilter(\'haveshard\')">有碎片('+haveShards.length+')</button>'+
    '<button class="'+(filter==='notowned'?'active':'')+'" onclick="Game.setFusionFilter(\'notowned\')">未拥有('+(Object.keys(PETS).length-owned.size)+')</button>'+
    '</div>';
-  let html='<div class="fusion-note">无抽卡收集：通关关卡掉落对应御兽精魄；未拥有的集齐 <b style="color:var(--gold-lt)">'+RARITY[1].shardNeed+'/'+RARITY[2].shardNeed+'/'+RARITY[3].shardNeed+'/'+RARITY[4].shardNeed+'</b>（按稀有度）即可合成完整宠物；已拥有宠物的精魄用于升星。当前收集 '+p.ownedPets.length+'/200，<b style="color:var(--heal)">当前可合成 '+canNow+' 只</b>。　<b style="color:#e0c040">天命精魄：'+destinyHave+'</b>（合成时使用可提升变异概率，每个+5%，最多3个）</div>'+shardsBar+filterBtns+'<div class="fusion-grid" id="fusion-grid">';
+  let html='<div class="fusion-note">无抽卡收集：通关关卡掉落对应御兽精魄；未拥有的集齐 <b style="color:var(--gold-lt)">'+RARITY[1].shardNeed+'/'+RARITY[2].shardNeed+'/'+RARITY[3].shardNeed+'/'+RARITY[4].shardNeed+'</b>（按稀有度）即可合成完整宠物；已拥有宠物的精魄用于升星。当前收集 '+p.ownedPets.length+'/200，<b style="color:var(--heal)">当前可合成 '+canNow+' 只</b>。合成有概率出变异御兽（全属性+10%），连续未出变异会累积保底。</div>'+shardsBar+filterBtns+'<div class="fusion-grid" id="fusion-grid">';
   petList.forEach(pet=>{
    const has=owned.has(pet.id);const sh=p.shards[pet.id]||0;const need=RARITY[pet.rarity].shardNeed;const pct=Math.min(100,sh/need*100);const ready=!has&&sh>=need;
-   const dCount=this.fusionDestiny[pet.id]||0;
-   const petBaseChance=isMutable(pet.id)?(MUTATION.rarityRate[pet.rarity]||MUTATION.baseChance):0;const dChance=Math.round((petBaseChance+dCount*MUTATION.destinyBonus)*100);
+   const petBaseChance=isMutable(pet.id)?(MUTATION.rarityRate[pet.rarity]||MUTATION.baseChance):0;const dChance=Math.round(petBaseChance*100);
    html+='<div class="fusion-card '+(has?'owned':ready?'can-synth':'')+'" id="fusion-'+pet.id+'">'+pixelChar(pet,44)+
     '<div class="fusion-info"><div class="fusion-name">'+esc(pet.name)+' <span style="font-size:10px;color:var(--txt3)">'+RARITY[pet.rarity].name+'</span>'+(ready?'<span class="fusion-synth-tag">可合成</span>':'')+'</div>'+
     (has?'<div class="fusion-prog" style="color:var(--heal)">已拥有 · 碎片 '+sh+'（升星消耗）</div>':
      '<div class="fusion-prog">碎片 <b>'+sh+'/'+need+'</b>'+(sh>0&&!ready?' <span style="color:var(--txt3);">还差'+(need-sh)+'</span>':'')+'</div><div class="shard-bar"><div class="shard-fill" style="width:'+pct+'%"></div></div>')+
-    (ready?'<div class="fusion-destiny"><span style="font-size:10px;color:#e0c040;">天命</span><button class="btn btn-xs" style="padding:1px 6px;font-size:11px;" onclick="Game.setFusionDestiny(\''+pet.id+'\','+Math.max(0,dCount-1)+')">-</button><span style="font-size:12px;color:#e0c040;font-weight:bold;">'+dCount+'/3</span><button class="btn btn-xs" style="padding:1px 6px;font-size:11px;" onclick="Game.setFusionDestiny(\''+pet.id+'\','+Math.min(3,dCount+1)+')">+</button><span style="font-size:10px;color:var(--txt2);">变异'+dChance+'%</span></div>':'')+
-    (!has?'<button class="btn btn-small '+(sh>=need?'btn-primary':'')+'" '+(sh>=need?'':'disabled')+' onclick="Game.fuse(\''+pet.id+'\','+(this.fusionDestiny[pet.id]||0)+')">合成</button>':'')+
+    (ready&&isMutable(pet.id)?'<div class="fusion-destiny"><span style="font-size:10px;color:#e0c040;">变异概率 '+dChance+'%</span><span style="font-size:10px;color:var(--txt2);">（保底 '+MUTATION.pityCount+' 次）</span></div>':'')+
+    (!has?'<button class="btn btn-small '+(sh>=need?'btn-primary':'')+'" '+(sh>=need?'':'disabled')+' onclick="Game.fuse(\''+pet.id+'\')">合成</button>':'')+
     '</div></div>';
   });
   $('fusion-body').innerHTML=html+'</div>';
@@ -5046,19 +5038,15 @@ const Game={
   this.fusionFilter='all';this.renderFusion();
   setTimeout(()=>{const el=document.getElementById('fusion-'+id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='3px solid var(--gold-lt)';setTimeout(()=>el.style.outline='',2000)}},100);
  },
- setFusionDestiny(id,count){if(!this.fusionDestiny)this.fusionDestiny={};this.fusionDestiny[id]=Math.max(0,Math.min(3,count));this.renderFusion()},
- fuse(id,destinyCount){
-  destinyCount=destinyCount||0;
+ fuse(id){
   const need=RARITY[PETS[id].rarity].shardNeed;
   if((this.player.shards[id]||0)<need)return;
-  if(destinyCount>0&&(this.player.items.destiny_shard||0)<destinyCount){this.tip('天命精魄不足');return}
   this.player.shards[id]-=need;
-  if(destinyCount>0)this.player.items.destiny_shard-=destinyCount;
   // 计算变异
   if(!this.player.fusePity)this.player.fusePity={};
   const pityCount=(this.player.fusePity[id]||0);
-  const petBaseChance=isMutable(id)?(MUTATION.rarityRate[PETS[id].rarity]||MUTATION.baseChance):0;const baseChance=petBaseChance+destinyCount*MUTATION.destinyBonus;
-  const pityChance=pityCount>=MUTATION.pityCount?1.0:baseChance;
+  const petBaseChance=isMutable(id)?(MUTATION.rarityRate[PETS[id].rarity]||MUTATION.baseChance):0;
+  const pityChance=pityCount>=MUTATION.pityCount?1.0:petBaseChance;
   const isMutant=Math.random()<pityChance;
   const resultId=isMutant?(id+'_m'):id;
   const resultPet=PETS[resultId];
@@ -5199,7 +5187,6 @@ const Game={
       if(ach.reward.exp_l)this.giveItem('exp_l',ach.reward.exp_l);
       if(ach.reward.reforge_basic)this.giveItem('reforge_basic',ach.reward.reforge_basic);
       if(ach.reward.reforge_adv)this.giveItem('reforge_adv',ach.reward.reforge_adv);
-      if(ach.reward.destiny_shard)this.giveItem('destiny_shard',ach.reward.destiny_shard);
       if(ach.reward.growth_fruit)this.giveItem('growth_fruit',ach.reward.growth_fruit);
       if(ach.reward.art_frag)this.giveItem('art_frag',ach.reward.art_frag);
      }
@@ -5252,7 +5239,7 @@ const Game={
     const isUnlocked=!!this.player.achievements[ach.id];
     const prog=this.getAchievementProgress(ach);
     const pct=Math.min(100,prog/ach.target*100);
-    const rewardTxt=ach.reward?Object.entries(ach.reward).map(([k,v])=>{const names={gold:'金币',exp_s:'小经验丹',exp_m:'中经验丹',exp_l:'大经验丹',reforge_basic:'洗髓丹',reforge_adv:'洗髓仙丹',destiny_shard:'天命精魄',growth_fruit:'成长果',art_frag:'法宝碎片'};return (names[k]||k)+'×'+v}).join(' '):'';
+    const rewardTxt=ach.reward?Object.entries(ach.reward).map(([k,v])=>{const names={gold:'金币',exp_s:'小经验丹',exp_m:'中经验丹',exp_l:'大经验丹',reforge_basic:'洗髓丹',reforge_adv:'洗髓仙丹',growth_fruit:'成长果',art_frag:'法宝碎片',stone:'觉醒石'};return (names[k]||k)+'×'+v}).join(' '):'';
     html+='<div class="achievement-item '+(isUnlocked?'unlocked':'locked')+'">'+
      '<div class="achievement-icon">'+ach.icon+'</div>'+
      '<div class="achievement-info">'+
@@ -5582,8 +5569,6 @@ const Game={
    msg='使用 '+it.name+'×'+count+'，'+PETS[petId].name+' 属性已提升';
   }else if(it.type==='artfrag'){
    this.tip('法宝碎片请在法宝打造界面使用');return;
-  }else if(it.type==='destiny'){
-   this.tip('天命精魄请在精魄合成时使用');return;
   }else if(it.type==='evolve'){
    this.tip('进化道具请在御兽进化时使用');return;
   }else{
@@ -5603,7 +5588,6 @@ const Game={
   const p=this.player;
   $('bag-gold').textContent=p.gold;
   $('bag-stone').textContent=p.stone;
-  $('bag-destiny').textContent=p.items.destiny_shard||0;
   const grid=$('bag-grid');
   let items=[];
   if(this.bagTab==='pet'){
@@ -5622,8 +5606,7 @@ const Game={
   }else if(this.bagTab==='material'){
    items=[
     {type:'material',id:'gold',name:'金币',count:p.gold,desc:'通用货币，用于升级、升星、打造法宝'},
-    {type:'material',id:'stone',name:'觉醒石',count:p.stone,desc:'4星升5星必需材料，关卡和秘境掉落'},
-    {type:'material',id:'destiny',name:'天命精魄',count:p.items.destiny_shard||0,desc:'合成时使用可提升变异概率，每个+5%，最多3个'}
+    {type:'material',id:'stone',name:'觉醒石',count:p.stone,desc:'4星升5星必需材料，关卡和秘境掉落'}
    ];
   }
   $('bag-capacity').textContent='共 '+items.length+' 项';
@@ -6341,8 +6324,8 @@ const Explore={
   // 剧情分支影响奖励
   const branchBonus=s.branchKill?{expMult:1.3,goldMult:1.2,note:'斩杀路线'}:s.branchCapture?{expMult:0.8,goldMult:0.9,note:'收服路线'}:s.branchSpare?{expMult:1.0,goldMult:1.1,note:'放过路线'}:{expMult:1,goldMult:1,note:''};
   Game.clearedStages[s.id]=true;Game.taskTick('stage');
-  let shardN=0,capTxt='',destinyTxt='';
-  if(first){Game.addExp(Math.floor(s.rewards.exp*branchBonus.expMult));Game.player.gold+=Math.floor((s.rewards.gold+this.extraGold)*branchBonus.goldMult);Game.giveItem('destiny_shard',1);destinyTxt='\n★ 首通奖励：天命精魄 ×1'+(branchBonus.note?'（'+branchBonus.note+'）':'')}
+  let shardN=0,capTxt='',stoneTxt='';
+  if(first){Game.addExp(Math.floor(s.rewards.exp*branchBonus.expMult));Game.player.gold+=Math.floor((s.rewards.gold+this.extraGold)*branchBonus.goldMult);Game.player.stone=(Game.player.stone||0)+5;stoneTxt='\n★ 首通奖励：觉醒石 ×5'+(branchBonus.note?'（'+branchBonus.note+'）':'')}
   else{Game.player.gold+=Math.floor(s.rewards.gold/2)}
   const shardTxts=[];
   shardN=rnd(s.shard.min,s.shard.max);Game.player.shards[s.shard.pet]=(Game.player.shards[s.shard.pet]||0)+shardN;shardTxts.push(PETS[s.shard.pet].name+'精魄 ×'+shardN);
@@ -6391,7 +6374,7 @@ const Explore={
   const next=STAGES.find(x=>x.id===s.id+1);const nextTxt=next&&!next.placeholder?('\n\n已解锁：'+next.name):(next&&next.placeholder?'\n\n已通关当前实装的全部关卡（前10难），后续劫难敬请期待':'');
   modal('通关 · '+s.name,
    '主角经验 +'+s.rewards.exp+'\n'+expTxt+'\n金币 +'+s.rewards.gold+(this.extraGold?'（含机关+'+this.extraGold+'）':'')+'\n'+capTxt+
-   destinyTxt+mileTxt+dropArtTxt+itemTxt+(captured?('\n\n收服成功：获得完整宠物「'+PETS[bossNode.capturePet].name+'」！'):'')+nextTxt,
+   stoneTxt+mileTxt+dropArtTxt+itemTxt+(captured?('\n\n收服成功：获得完整宠物「'+PETS[bossNode.capturePet].name+'」！'):'')+nextTxt,
    [{t:'返回路线图',primary:true,fn:()=>Game.showView('stages')}]);
   if(captured)setTimeout(()=>Dialog.start('hyd_capture',s.name,()=>{}),300);
  }
@@ -6423,10 +6406,9 @@ function artifactImg(artifactId){
 }
 // 材料图标路径
 function materialImg(matId){
-  const names={gold:'金币',stone:'觉醒石',destiny:'天命精魄'};
+  const names={gold:'金币',stone:'觉醒石'};
   if(matId==='gold')return '道具图标/gold_金币.png';
   if(matId==='stone')return '道具图标/stone_觉醒石.png';
-  if(matId==='destiny')return '道具图标/destiny_shard_天命精魄.png';
   return '';
 }
 // 秘境背景图路径
