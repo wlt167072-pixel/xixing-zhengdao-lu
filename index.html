@@ -2878,11 +2878,12 @@ const SHOP_CONFIG={
  },
  // 幸运卷
  luckyTicket:{name:'幸运卷',price:5000,limit:null},
- // 核心资源
+ // 核心资源（全部不限购）
  resources:[
-  {id:'reforge_basic',name:'洗髓丹',desc:'重置宠物性格/资质',price:100,dailyLimit:30,weeklyLimit:150},
-  {id:'growth_fruit',name:'成长果',desc:'宠物经验+1000',price:50,dailyLimit:50,weeklyLimit:300},
-  {id:'stone',name:'觉醒石',desc:'奥义觉醒材料',price:150,dailyLimit:20,weeklyLimit:100}
+  {id:'reforge_basic',name:'洗髓丹',desc:'重置宠物性格/资质',price:100,dailyLimit:null,weeklyLimit:null},
+  {id:'growth_fruit',name:'成长果',desc:'宠物经验+1000',price:50,dailyLimit:null,weeklyLimit:null},
+  {id:'stone',name:'觉醒石',desc:'奥义觉醒材料',price:150,dailyLimit:null,weeklyLimit:null},
+  {id:'stamina_potion',name:'体力药水',desc:'恢复30点体力',price:80,dailyLimit:null,weeklyLimit:null}
  ],
  // 特惠礼包
  packages:[
@@ -5878,25 +5879,31 @@ const Game={
  buyResource(id,price,dailyLimit,weeklyLimit){
   const p=this.player;
   if((p.xianyu||0)<price){this.tip('仙玉不足');return}
-  const dailyBought=this.getShopLimit('daily',id);
-  const weeklyBought=this.getShopLimit('weekly',id);
-  if(dailyBought>=dailyLimit){this.tip('今日已达限购上限');return}
-  if(weeklyBought>=weeklyLimit){this.tip('本周已达限购上限');return}
+  if(dailyLimit!==null&&dailyLimit!==undefined){
+    const dailyBought=this.getShopLimit('daily',id);
+    if(dailyBought>=dailyLimit){this.tip('今日已达限购上限');return}
+  }
+  if(weeklyLimit!==null&&weeklyLimit!==undefined){
+    const weeklyBought=this.getShopLimit('weekly',id);
+    if(weeklyBought>=weeklyLimit){this.tip('本周已达限购上限');return}
+  }
   p.xianyu-=price;
-  this.setShopLimit('daily',id,1);
-  this.setShopLimit('weekly',id,1);
+  if(dailyLimit!==null&&dailyLimit!==undefined)this.setShopLimit('daily',id,1);
+  if(weeklyLimit!==null&&weeklyLimit!==undefined)this.setShopLimit('weekly',id,1);
   if(id==='stone'){p.stone=(p.stone||0)+1}
   else{p.items[id]=(p.items[id]||0)+1}
   SaveSystem.save();this.renderShop();
-  this.tip('购买成功：'+ITEMS[id]?.name||id);
+  this.tip('购买成功：'+(ITEMS[id]?.name||id));
  },
  buyPackage(id,price,limitType,limitCount){
   const p=this.player;
   if((p.xianyu||0)<price){this.tip('仙玉不足');return}
-  const bought=this.getShopLimit(limitType,id);
-  if(bought>=limitCount){this.tip('已达限购上限');return}
+  if(limitType!==null&&limitType!==undefined&&limitCount!==null&&limitCount!==undefined){
+    const bought=this.getShopLimit(limitType,id);
+    if(bought>=limitCount){this.tip('已达限购上限');return}
+  }
   p.xianyu-=price;
-  this.setShopLimit(limitType,id,1);
+  if(limitType!==null&&limitType!==undefined)this.setShopLimit(limitType,id,1);
   const pkg=SHOP_CONFIG.packages.find(x=>x.id===id);
   if(pkg&&pkg.items){
    Object.entries(pkg.items).forEach(([itemId,count])=>{
@@ -5905,7 +5912,7 @@ const Game={
    });
   }
   SaveSystem.save();this.renderShop();
-  this.tip('购买成功：'+pkg?.name||id);
+  this.tip('购买成功：'+(pkg?.name||id));
  },
  refreshLuckyShop(free){
   const p=this.player;
