@@ -1461,7 +1461,7 @@ img,svg,canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .shop-tab{padding:12px 32px;background:transparent;border:none;color:var(--txt3);font-size:14px;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s steps(2)}
 .shop-tab.active{color:var(--gold-lt);border-bottom-color:var(--gold);background:rgba(240,192,80,.1)}
 .shop-tab:hover{color:var(--gold)}
-.shop-content{padding:20px 24px;min-height:500px}
+.shop-content{padding:20px 24px;min-height:500px;max-height:calc(100vh - 180px);overflow-y:auto}
 .shop-section{margin-bottom:24px}
 .shop-section-title{font-size:15px;color:var(--gold);font-weight:900;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--gold-dk);display:flex;justify-content:space-between;align-items:center}
 .shop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -1978,7 +1978,6 @@ const ITEMS={
  'ghost_orb':{name:'鬼力珠',desc:'鬼道进化道具，可使御兽进化为鬼王形态',type:'evolve',color:'#8040a0',quality:4},
  'bone_crown':{name:'白骨冠',desc:'白骨进化道具，可使御兽进化为白骨大仙形态',type:'evolve',color:'#e0e0d0',quality:4},
  'bull_horn':{name:'蛮牛角',desc:'牛族进化道具，可使御兽进化为青牛妖王形态',type:'evolve',color:'#a06040',quality:4},
- 'evo_item':{name:'进化秘宝',desc:'宠物进化分支道具，可用于特殊进化',type:'evolve',color:'#c0a060',quality:4},
  'lucky_ticket':{name:'幸运卷',desc:'幸运商店刷新道具，消耗1张可刷新幸运商店宠物',type:'lucky',color:'#e0c040',quality:5}
 };
 // 变异系统配置
@@ -2855,9 +2854,9 @@ const SHOP_CONFIG={
   {id:'pet_186',name:'白虎灵尊',rarity:5,element:'金',price:3000,weeklyLimit:1},
   {id:'pet_187',name:'朱雀灵尊',rarity:5,element:'火',price:3000,weeklyLimit:1},
   {id:'pet_188',name:'玄武灵尊',rarity:5,element:'水',price:3000,weeklyLimit:1},
-  {id:'pet_066',name:'牛魔王',rarity:5,element:'土',price:3000,weeklyLimit:1},
-  {id:'pet_042',name:'红孩儿',rarity:4,element:'火',price:1500,weeklyLimit:2},
-  {id:'pet_067',name:'铁扇公主',rarity:4,element:'风',price:1500,weeklyLimit:2}
+  {id:'pet_095',name:'牛魔王',rarity:5,element:'土',price:3000,weeklyLimit:1},
+  {id:'pet_030',name:'红孩儿',rarity:4,element:'火',price:1500,weeklyLimit:2},
+  {id:'pet_096',name:'铁扇公主',rarity:4,element:'风',price:1500,weeklyLimit:2}
  ],
  // 幸运商店配置
  luckyShop:{
@@ -2881,7 +2880,7 @@ const SHOP_CONFIG={
  packages:[
   {id:'newbie_pack',name:'新手启程礼包',content:'天命精魄×5+成长果×20+洗髓丹×10',items:{'destiny_shard':5,'growth_fruit':20,'reforge_basic':10},price:680,limitType:'lifetime',limitCount:1},
   {id:'mutation_pack',name:'变异助力礼包',content:'天命精魄×10+觉醒石×5',items:{'destiny_shard':10,'stone':5},price:1500,limitType:'weekly',limitCount:1},
-  {id:'growth_pack',name:'养成加速礼包',content:'成长果×50+洗髓丹×20+进化秘宝×3',items:{'growth_fruit':50,'reforge_basic':20,'evo_item':3},price:1200,limitType:'weekly',limitCount:1},
+  {id:'growth_pack',name:'养成加速礼包',content:'成长果×50+洗髓丹×20+觉醒石×5',items:{'growth_fruit':50,'reforge_basic':20,'stone':5},price:1200,limitType:'weekly',limitCount:1},
   {id:'stone_pack',name:'觉醒石礼包',content:'觉醒石×20',items:{'stone':20},price:2000,limitType:'weekly',limitCount:1},
   {id:'monthly_card',name:'月度资源卡',content:'每天领天命精魄×2+成长果×5，持续30天',items:{'destiny_shard':60,'growth_fruit':150},price:1800,limitType:'monthly',limitCount:1},
   {id:'lucky_pack',name:'幸运卷礼包',content:'幸运卷×3',items:{'lucky_ticket':3},price:12000,limitType:'weekly',limitCount:1}
@@ -4228,7 +4227,7 @@ const Game={
   if(v==='fusion')this.renderFusion();if(v==='settings')this.renderSettings();
   if(v==='secret'){Secret.render();SFX.startBgm('secret')}
   if(v==='gacha'){this.renderGacha();SFX.startBgm('gacha')}
-  if(v==='shop'){this.showShop()}
+  if(v==='shop'){this.shopTab='pet';this.resetShopLimits();this.renderShop()}
   if(v==='battle'){SFX.startBgm('battle');if(typeof Guide!=='undefined')Guide.show('battle')}
   if(v==='dialog'&&typeof Guide!=='undefined')Guide.show('dialog');
   if(v==='title'){this.refreshTitle();SFX.startBgm('title')}
@@ -5650,7 +5649,7 @@ const Game={
  // ===== 商店系统
  shopTab:'pet',
  switchShopTab(tab){this.shopTab=tab;document.querySelectorAll('.shop-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));this.renderShop()},
- showShop(){this.showView('shop');this.shopTab='pet';this.resetShopLimits();this.renderShop()},
+ showShop(){this.showView('shop')},
  resetShopLimits(){
   const p=this.player;if(!p.shop)p.shop={daily:{},weekly:{},lifetime:{},monthly:{},luckyPets:null,luckyRefresh:0};
   const today=new Date().toISOString().slice(0,10);
